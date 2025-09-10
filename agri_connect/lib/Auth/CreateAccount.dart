@@ -14,6 +14,7 @@ class _CreateAccountState extends State<CreateAccount> {
       appBar: AppBar(
         title: Text('Criar Conta'),
         backgroundColor: Colors.green[600],
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),

@@ -62,7 +62,10 @@ class _loginState extends State<login> {
                 ),
               ),
               onPressed: () {
-                MaterialPageRoute(builder: (context) => const CreateAccount());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateAccount()),
+                );
               },
               child: Text(
                 "Começar",
@@ -80,7 +83,10 @@ class _loginState extends State<login> {
                 ),
               ),
               onPressed: () {
-                MaterialPageRoute(builder: (context) => const CreateAccount());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateAccount()),
+                );
               },
               child: Text(
                 "Saiba Mais",
