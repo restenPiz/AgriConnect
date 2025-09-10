@@ -8,7 +8,7 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  String selectedRole = "agricultor"; // guarda a seleção
+  String selectedRole = "agricultor"; // padrão: Agricultor
 
   @override
   Widget build(BuildContext context) {
@@ -27,89 +27,20 @@ class _CreateAccountState extends State<CreateAccount> {
           children: [
             /// Botões de seleção
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => selectedRole = "agricultor"),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: selectedRole == "agricultor"
-                            ? Colors.green[50]
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: selectedRole == "agricultor"
-                              ? Colors.green
-                              : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.agriculture,
-                            size: 40,
-                            color: selectedRole == "agricultor"
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Agricultor",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: selectedRole == "agricultor"
-                                  ? Colors.green
-                                  : Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  child: _buildRoleButton(
+                    "agricultor",
+                    Icons.agriculture,
+                    "Agricultor",
                   ),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => selectedRole = "comprador"),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: selectedRole == "comprador"
-                            ? Colors.green[50]
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: selectedRole == "comprador"
-                              ? Colors.green
-                              : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.store,
-                            size: 40,
-                            color: selectedRole == "comprador"
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Comprador",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: selectedRole == "comprador"
-                                  ? Colors.green
-                                  : Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  child: _buildRoleButton(
+                    "comprador",
+                    Icons.store,
+                    "Comprador",
                   ),
                 ),
               ],
@@ -117,14 +48,24 @@ class _CreateAccountState extends State<CreateAccount> {
 
             const SizedBox(height: 25),
 
-            /// Campos de texto
+            /// Campos de texto comuns a todos
             _buildTextField("Nome Completo", "João Machado"),
             const SizedBox(height: 15),
             _buildTextField("Telefone", "+258 84 567 8901"),
+
             const SizedBox(height: 15),
-            _buildTextField("Localização da Fazenda", "Sofala, Beira"),
-            const SizedBox(height: 15),
-            _buildTextField("Tipo de Cultivo Principal", "Milho, Feijão"),
+
+            /// Campos diferentes dependendo do papel
+            if (selectedRole == "agricultor") ...[
+              _buildTextField("Localização da Fazenda", "Sofala, Beira"),
+              const SizedBox(height: 15),
+              _buildTextField("Tipo de Cultivo Principal", "Milho, Feijão"),
+            ] else if (selectedRole == "comprador") ...[
+              _buildTextField("Nome do Negócio", "Mercado Central"),
+              const SizedBox(height: 15),
+              _buildTextField("Localização do Negócio", "Beira, Sofala"),
+            ],
+
             const SizedBox(height: 25),
 
             /// Botão criar conta
@@ -138,7 +79,10 @@ class _CreateAccountState extends State<CreateAccount> {
                 ),
               ),
               onPressed: () {
-                // ação de criar conta
+                // Aqui podes capturar os dados e enviar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Conta criada como $selectedRole")),
+                );
               },
               child: const Text(
                 "Criar Conta",
@@ -151,7 +95,43 @@ class _CreateAccountState extends State<CreateAccount> {
     );
   }
 
-  /// Função para gerar textfields padronizados
+  /// Botão de seleção de papel
+  Widget _buildRoleButton(String role, IconData icon, String label) {
+    bool isSelected = selectedRole == role;
+    return GestureDetector(
+      onTap: () => setState(() => selectedRole = role),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.green[50] : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.green : Colors.grey.shade300,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 40,
+              color: isSelected ? Colors.green : Colors.grey,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.green : Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Campo de texto reutilizável
   Widget _buildTextField(String label, String hint) {
     return TextField(
       decoration: InputDecoration(
