@@ -1,3 +1,4 @@
+import 'package:agri_connect/Auth/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -31,28 +32,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Column(
-          children: [
-            Text('Counter: $_counter'),
-            ElevatedButton(
-              onPressed: _incrementCounter,
-              child: const Text('Increment Counter'),
-            ),
-          ],
-        ),
-      ),
-    );
+    return login();
   }
 }
