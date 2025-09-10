@@ -18,9 +18,58 @@ class _CreateAccountState extends State<CreateAccount> {
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
-        child: Row(
+        child: Column(
           children: [
-            //*Two buttons on the same line
+            Row(
+              children: [
+                //*Two buttons side by side
+              ],
+            ),
+            SizedBox(height: 20),
+            Column(
+              children: [
+                //*Start with text fields for name, email, password
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Nome Completo',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'Digite seu nome completo',
+                  ),
+                ),
+                SizedBox(height: 15),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Telefone',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'Digite o número do seu telefone',
+                  ),
+                ),
+                SizedBox(height: 15),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Localizacao da Fazenda',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'Digite a Localizacao da Fazenda',
+                  ),
+                ),
+                SizedBox(height: 15),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Tipo de Cultivo Principal',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'Digite o Tipo de Cultivo Principal',
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
