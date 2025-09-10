@@ -72,7 +72,6 @@ class _CreateAccountState extends State<CreateAccount> {
 
             const SizedBox(height: 25),
 
-            /// Botão criar conta
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -82,12 +81,6 @@ class _CreateAccountState extends State<CreateAccount> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              // onPressed: () {
-              //   // Aqui podes capturar os dados e enviar
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     SnackBar(content: Text("Conta criada como $selectedRole")),
-              //   );
-              // },
               onPressed: () {
                 Navigator.push(
                   context,
