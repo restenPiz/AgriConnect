@@ -1,4 +1,4 @@
-import 'package:agri_connect/Auth/login.dart';
+import 'package:agri_connect/Auth/welcome.dart';
 import 'package:flutter/material.dart';
 
 void main() {
