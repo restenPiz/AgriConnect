@@ -1,3 +1,4 @@
+import 'package:agri_connect/Farmer/index.dart';
 import 'package:flutter/material.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -14,7 +15,10 @@ class _CreateAccountState extends State<CreateAccount> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Criar Conta'),
+        title: const Text(
+          'Criar Conta',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.green[600],
         foregroundColor: Colors.white,
         elevation: 0,
@@ -78,10 +82,16 @@ class _CreateAccountState extends State<CreateAccount> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              // onPressed: () {
+              //   // Aqui podes capturar os dados e enviar
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     SnackBar(content: Text("Conta criada como $selectedRole")),
+              //   );
+              // },
               onPressed: () {
-                // Aqui podes capturar os dados e enviar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Conta criada como $selectedRole")),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const index()),
                 );
               },
               child: const Text(
