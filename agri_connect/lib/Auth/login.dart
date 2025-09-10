@@ -10,29 +10,86 @@ class login extends StatefulWidget {
 class _loginState extends State<login> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.green,
-      child: Center(
+    return Scaffold(
+      backgroundColor: Colors.green[600], // fundo verde
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 300),
-            Center(
-              child: Text(
-                'AgriConnect',
-                style: TextStyle(color: Colors.white, fontSize: 25),
+            // Ícone ou logo
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.green[400],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.agriculture, // pode trocar pelo seu logo
+                size: 80,
+                color: Colors.amber[700],
               ),
             ),
-            SizedBox(height: 20),
-            Center(
-              child: Text(
-                'Conectando agricultores diretamente aos mercados urbanos. Elimine intermediários e maximize seus lucros.',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+            SizedBox(height: 30),
+
+            // Nome do app
+            Text(
+              "AgriConnect",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: () {}, child: Text('Comecar')),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () {}, child: Text('Saiba Mais')),
+
+            // Descrição
+            Text(
+              "Conectando agricultores diretamente aos mercados urbanos. "
+              "Elimine intermediários e triplique seus lucros!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
+            SizedBox(height: 40),
+
+            // Botão "Começar"
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.green,
+                minimumSize: Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                // ação ao clicar
+              },
+              child: Text(
+                "Começar",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 15),
+
+            // Botão "Saiba Mais"
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.white),
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                // ação ao clicar
+              },
+              child: Text(
+                "Saiba Mais",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
           ],
         ),
       ),
