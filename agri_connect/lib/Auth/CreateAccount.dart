@@ -17,7 +17,11 @@ class _CreateAccountState extends State<CreateAccount> {
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
-        child: Text('Tela de Criação de Conta'),
+        child: Row(
+          children: [
+            //*Two buttons on the same line
+          ],
+        ),
       ),
     );
   }

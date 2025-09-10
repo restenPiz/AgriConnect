@@ -1,3 +1,4 @@
+import 'package:agri_connect/Auth/CreateAccount.dart';
 import 'package:flutter/material.dart';
 
 class login extends StatefulWidget {
@@ -61,7 +62,7 @@ class _loginState extends State<login> {
                 ),
               ),
               onPressed: () {
-                // ação ao clicar
+                MaterialPageRoute(builder: (context) => const CreateAccount());
               },
               child: Text(
                 "Começar",
@@ -79,7 +80,7 @@ class _loginState extends State<login> {
                 ),
               ),
               onPressed: () {
-                // ação ao clicar
+                MaterialPageRoute(builder: (context) => const CreateAccount());
               },
               child: Text(
                 "Saiba Mais",
