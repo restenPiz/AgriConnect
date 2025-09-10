@@ -107,6 +107,7 @@ class _indexState extends State<index> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        backgroundColor: Colors.yellow,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
