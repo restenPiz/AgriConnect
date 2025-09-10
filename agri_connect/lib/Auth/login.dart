@@ -15,11 +15,23 @@ class _loginState extends State<login> {
       child: Center(
         child: Column(
           children: [
-            Text('AgriConnect'),
-            Text(
-              'Conectando agricultores diretamente aos mercados urbanos. Elimine intermediários e maximize seus lucros.',
+            SizedBox(height: 300),
+            Center(
+              child: Text(
+                'AgriConnect',
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
             ),
+            SizedBox(height: 20),
+            Center(
+              child: Text(
+                'Conectando agricultores diretamente aos mercados urbanos. Elimine intermediários e maximize seus lucros.',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(onPressed: () {}, child: Text('Comecar')),
+            SizedBox(height: 10),
             ElevatedButton(onPressed: () {}, child: Text('Saiba Mais')),
           ],
         ),
