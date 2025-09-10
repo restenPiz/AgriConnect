@@ -51,8 +51,6 @@ class _loginState extends State<login> {
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
             SizedBox(height: 40),
-
-            // Botão "Começar"
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -71,8 +69,6 @@ class _loginState extends State<login> {
               ),
             ),
             SizedBox(height: 15),
-
-            // Botão "Saiba Mais"
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.white),
