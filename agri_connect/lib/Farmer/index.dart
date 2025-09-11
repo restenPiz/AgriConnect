@@ -78,7 +78,7 @@ class _indexState extends State<index> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildStatCard("12", "PRODUTOS ATIVOS"),
+                _buildStatCard("12", "PRODUTOS"),
                 _buildStatCard("45", "PEDIDOS MÊS"),
                 _buildStatCard("4.8⭐", "AVALIAÇÃO"),
               ],
@@ -96,7 +96,7 @@ class _indexState extends State<index> {
                 _buildOptionCard(Icons.inventory, "Meus Produtos"),
                 _buildOptionCard(Icons.assignment, "Pedidos"),
                 _buildOptionCard(Icons.attach_money, "Finanças"),
-                _buildOptionCard(Icons.handshake, "Parcerias"),
+                _buildOptionCard(Icons.handshake, "Cooperativas"),
               ],
             ),
           ],
