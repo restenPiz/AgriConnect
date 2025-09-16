@@ -8,11 +8,11 @@ class index extends StatefulWidget {
 }
 
 class _indexState extends State<index> {
-  int _selectedIndex = 0;
+  int _selectedindex = 0;
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _selectedindex = index;
     });
   }
 
@@ -42,32 +42,26 @@ class _indexState extends State<index> {
           children: [
             /// Card de boas-vindas
             Container(
-              padding: const EdgeInsets.all(40),
+              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.green[600],
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Olá, João! 🌿",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          "Seus produtos estão gerando mais lucro!",
-                          style: TextStyle(color: Colors.white70, fontSize: 16),
-                        ),
-                      ],
+                  Text(
+                    "Olá, João! 🌿",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Seus produtos estão gerando mais lucro!",
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -76,11 +70,11 @@ class _indexState extends State<index> {
 
             /// Estatísticas
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatCard("12", "PRODUTOS"),
+                _buildStatCard("12", "PRODUTOS ATIVOS"),
                 _buildStatCard("45", "PEDIDOS MÊS"),
-                _buildStatCard("4.8⭐", "AVALIAÇÃO"),
+                _buildStatCard("4.8★", "AVALIAÇÃO"),
               ],
             ),
             const SizedBox(height: 20),
@@ -97,41 +91,56 @@ class _indexState extends State<index> {
                 _buildOptionCard(Icons.assignment, "Pedidos"),
                 _buildOptionCard(Icons.attach_money, "Finanças"),
                 _buildOptionCard(Icons.handshake, "Cooperativas"),
-                _buildOptionCard(Icons.point_of_sale, "Historico de Vendas"),
-                _buildOptionCard(Icons.delivery_dining, "Entregas"),
               ],
             ),
+            const SizedBox(height: 80), // Espaço extra para o FAB
           ],
         ),
       ),
 
+      /// Floating Action Button no centro
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Adicionar novo produto'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
+        backgroundColor: Colors.green[600],
+        foregroundColor: Colors.white,
+        elevation: 8.0,
+        child: const Icon(Icons.add, size: 28),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       /// Bottom Navigation
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.yellow,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Início"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: "Produtos",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        color: Colors.white,
+        elevation: 8.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildBottomNavItem(Icons.home, "Início", 0),
+            _buildBottomNavItem(Icons.inventory, "Produtos", 1),
+            const SizedBox(width: 50), // Espaço para o FAB
+            _buildBottomNavItem(Icons.chat, "Chat", 2),
+            _buildBottomNavItem(Icons.person, "Perfil", 3),
+          ],
+        ),
       ),
     );
   }
 
-  /// Widget de estatística
+  /// Estatísticas
   Widget _buildStatCard(String value, String label) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -157,7 +166,7 @@ class _indexState extends State<index> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
+              style: const TextStyle(fontSize: 11, color: Colors.black54),
             ),
           ],
         ),
@@ -165,7 +174,7 @@ class _indexState extends State<index> {
     );
   }
 
-  /// Widget de card de opção
+  /// Opções
   Widget _buildOptionCard(IconData icon, String label) {
     return Container(
       decoration: BoxDecoration(
@@ -181,17 +190,46 @@ class _indexState extends State<index> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          // ação do card
-        },
+        onTap: () {},
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 40, color: Colors.green),
             const SizedBox(height: 10),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Bottom nav
+  Widget _buildBottomNavItem(IconData icon, String label, int index) {
+    bool isSelected = _selectedindex == index;
+
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? Colors.green[600] : Colors.grey[600],
+            size: 22,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.green[600] : Colors.grey[600],
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
