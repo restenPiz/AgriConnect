@@ -7,13 +7,31 @@ class index extends StatefulWidget {
   State<index> createState() => _indexState();
 }
 
-class _indexState extends State<index> {
+class _indexState extends State<index> with TickerProviderStateMixin {
   int _selectedindex = 0;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedindex = index;
     });
+    _animationController.reset();
+    _animationController.forward();
   }
 
   @override
@@ -93,44 +111,128 @@ class _indexState extends State<index> {
                 _buildOptionCard(Icons.handshake, "Cooperativas"),
               ],
             ),
-            const SizedBox(height: 80), // Espaço extra para o FAB
+            const SizedBox(height: 100), // Espaço extra para o FAB
           ],
         ),
       ),
 
-      /// Floating Action Button no centro
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Adicionar novo produto'),
-              duration: Duration(seconds: 2),
+      /// Floating Action Button Customizado
+      floatingActionButton: Container(
+        width: 65,
+        height: 65,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.green[400]!,
+              Colors.green[600]!,
+              Colors.green[800]!,
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-          );
-        },
-        backgroundColor: Colors.green[600],
-        foregroundColor: Colors.white,
-        elevation: 8.0,
-        child: const Icon(Icons.add, size: 28),
+            BoxShadow(
+              color: Colors.green.withOpacity(0.2),
+              blurRadius: 25,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(32.5),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Adicionar novo produto'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Icon(Icons.add, color: Colors.white, size: 30),
+          ),
+        ),
       ),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-      /// Bottom Navigation
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildBottomNavItem(Icons.home, "Início", 0),
-            _buildBottomNavItem(Icons.inventory, "Produtos", 1),
-            const SizedBox(width: 50), // Espaço para o FAB
-            _buildBottomNavItem(Icons.chat, "Chat", 2),
-            _buildBottomNavItem(Icons.person, "Perfil", 3),
+      /// Bottom Navigation Bar Moderno
+      bottomNavigationBar: Container(
+        height: 122,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, Colors.grey[50]!],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 30,
+              offset: const Offset(0, 15),
+            ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25),
+          child: BottomAppBar(
+            color: Colors.transparent,
+            elevation: 0,
+            notchMargin: 8,
+            shape: const CircularNotchedRectangle(),
+            child: SizedBox(
+              height: 90,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildBottomNavItem(
+                      Icons.home_outlined,
+                      Icons.home,
+                      "Início",
+                      0,
+                    ),
+                    _buildBottomNavItem(
+                      Icons.inventory_2_outlined,
+                      Icons.inventory_2,
+                      "Produtos",
+                      1,
+                    ),
+                    const SizedBox(width: 40), // Espaço para o FAB
+                    _buildBottomNavItem(
+                      Icons.chat_bubble_outline,
+                      Icons.chat_bubble,
+                      "Chat",
+                      2,
+                    ),
+                    _buildBottomNavItem(
+                      Icons.person_outline,
+                      Icons.person,
+                      "Perfil",
+                      3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -206,31 +308,65 @@ class _indexState extends State<index> {
     );
   }
 
-  /// Bottom nav
-  Widget _buildBottomNavItem(IconData icon, String label, int index) {
+  /// Bottom Navigation Item Moderno
+  Widget _buildBottomNavItem(
+    IconData outlineIcon,
+    IconData filledIcon,
+    String label,
+    int index,
+  ) {
     bool isSelected = _selectedindex == index;
 
-    return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? Colors.green[600] : Colors.grey[600],
-            size: 22,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.green[600] : Colors.grey[600],
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () => _onItemTapped(index),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: isSelected
+                  ? Colors.green.withOpacity(0.1)
+                  : Colors.transparent,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    isSelected ? filledIcon : outlineIcon,
+                    key: ValueKey(isSelected),
+                    color: isSelected ? Colors.green[600] : Colors.grey[600],
+                    size: isSelected ? 26 : 24,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    color: isSelected ? Colors.green[600] : Colors.grey[600],
+                    fontSize: isSelected ? 12 : 11,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                  child: Text(label),
+                ),
+                if (isSelected)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    height: 3,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.green[600],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
