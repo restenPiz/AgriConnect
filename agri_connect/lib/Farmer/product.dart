@@ -30,7 +30,23 @@ class _productState extends State<product> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(padding: const EdgeInsets.all(12.0)),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
+
+        //*start with the product list
+        child: Column(
+          children: [
+            Expanded(child: Row(children: [
+
+              ],
+            )),
+            Expanded(child: Column(children: [
+
+              ],
+            )),
+          ],
+        ),
+      ),
 
       /// Floating Action Button Customizado
       floatingActionButton: Container(
