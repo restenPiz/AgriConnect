@@ -1,4 +1,5 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
+import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:flutter/material.dart';
 
@@ -108,10 +109,49 @@ class _indexState extends State<index> with TickerProviderStateMixin {
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               children: [
-                _buildOptionCard(Icons.inventory, "Meus Produtos"),
-                _buildOptionCard(Icons.assignment, "Pedidos"),
-                _buildOptionCard(Icons.attach_money, "Finanças"),
-                _buildOptionCard(Icons.handshake, "Cooperativas"),
+                _buildOptionCard(
+                  Icons.inventory,
+                  "Meus Produtos",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const myProduct()),
+                    );
+                  },
+                ),
+                _buildOptionCard(
+                  Icons.assignment,
+                  "Pedidos",
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Pedidos em desenvolvimento'),
+                      ),
+                    );
+                  },
+                ),
+                _buildOptionCard(
+                  Icons.attach_money,
+                  "Finanças",
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Finanças em desenvolvimento'),
+                      ),
+                    );
+                  },
+                ),
+                _buildOptionCard(
+                  Icons.handshake,
+                  "Cooperativas",
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Cooperativas em desenvolvimento'),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 100), // Espaço extra para o FAB
@@ -206,8 +246,8 @@ class _indexState extends State<index> with TickerProviderStateMixin {
     );
   }
 
-  /// Opções
-  Widget _buildOptionCard(IconData icon, String label) {
+  /// Opções com navegação
+  Widget _buildOptionCard(IconData icon, String label, {VoidCallback? onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -222,7 +262,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {},
+        onTap: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
