@@ -1,4 +1,5 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
+import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:flutter/material.dart';
 
@@ -185,8 +186,9 @@ class _profileState extends State<profile> {
                     subtitle: '12 produtos ativos',
                     color: Colors.orange,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Meus Produtos')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const myProduct()),
                       );
                     },
                   ),
