@@ -116,31 +116,63 @@ class _productState extends State<product> {
                         vertical: 8,
                         horizontal: 0,
                       ),
-                      child: ListTile(
-                        leading: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                'https://via.placeholder.com/150?text=Produto+${index + 1}',
+                      // child: ListTile(
+                      // leading: Container(
+                      //   width: 60,
+                      //   height: 60,
+                      //   decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.circular(10),
+                      //     image: DecorationImage(
+                      //       image: NetworkImage(
+                      //         'https://via.placeholder.com/150?text=Produto+${index + 1}',
+                      //       ),
+                      //       fit: BoxFit.cover,
+                      //     ),
+                      //   ),
+                      // ),
+                      //   title: Text('Produto ${index + 1}'),
+                      //   subtitle: Text('Descrição do produto ${index + 1}'),
+                      //   trailing: Text('\$${(index + 1) * 10}'),
+                      //   onTap: () {
+                      //     ScaffoldMessenger.of(context).showSnackBar(
+                      //       SnackBar(
+                      //         content: Text('Produto ${index + 1} selecionado'),
+                      //         duration: const Duration(seconds: 2),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 340,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
+                                ),
+                                fit: BoxFit.cover,
                               ),
-                              fit: BoxFit.cover,
                             ),
                           ),
-                        ),
-                        title: Text('Produto ${index + 1}'),
-                        subtitle: Text('Descrição do produto ${index + 1}'),
-                        trailing: Text('\$${(index + 1) * 10}'),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Produto ${index + 1} selecionado'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
+                          ListTile(
+                            title: Text('Produto ${index + 1}'),
+                            subtitle: Text('Descrição do produto ${index + 1}'),
+                            trailing: Text('\$${(index + 1) * 10}'),
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Produto ${index + 1} selecionado',
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     );
                   }),
