@@ -3,27 +3,7 @@ import 'package:flutter/material.dart';
 
 class product extends StatefulWidget {
   final int currentIndex;
-  const product({
-    super.key,
-    this.currentIndex = 1,
-    required this.productName,
-    required this.price,
-    required this.seller,
-    required this.location,
-    required this.availability,
-    required this.rating,
-    required this.reviewCount,
-    required this.imageEmoji,
-  });
-
-  final String productName;
-  final String price;
-  final String seller;
-  final String location;
-  final String availability;
-  final double rating;
-  final int reviewCount;
-  final String imageEmoji;
+  const product({super.key, this.currentIndex = 1});
 
   @override
   State<product> createState() => _productState();
@@ -121,27 +101,49 @@ class _productState extends State<product> {
             ),
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    ...List.generate(10, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: product(
-                          productName: 'Produto ${index + 1}',
-                          price: '${(index + 1) * 10} MT/kg',
-                          seller: 'João Machado',
-                          location: 'Beira, Sofala',
-                          availability: 'Disponível: 250kg',
-                          rating: 4.8,
-                          reviewCount: 23,
-                          imageEmoji: '🍅',
+              child: Column(
+                children: [
+                  //*Start with the card of products
+                  ...List.generate(10, (index) {
+                    return Card(
+                      elevation: 4,
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 0,
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                'https://via.placeholder.com/150?text=Produto+${index + 1}',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
-                      );
-                    }),
-                  ],
-                ),
+                        title: Text('Produto ${index + 1}'),
+                        subtitle: Text('Descrição do produto ${index + 1}'),
+                        trailing: Text('\$${(index + 1) * 10}'),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Produto ${index + 1} selecionado'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
+                ],
               ),
             ),
           ],
