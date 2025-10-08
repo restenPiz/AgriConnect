@@ -116,32 +116,6 @@ class _productState extends State<product> {
                         vertical: 8,
                         horizontal: 0,
                       ),
-                      // child: ListTile(
-                      // leading: Container(
-                      //   width: 60,
-                      //   height: 60,
-                      //   decoration: BoxDecoration(
-                      //     borderRadius: BorderRadius.circular(10),
-                      //     image: DecorationImage(
-                      //       image: NetworkImage(
-                      //         'https://via.placeholder.com/150?text=Produto+${index + 1}',
-                      //       ),
-                      //       fit: BoxFit.cover,
-                      //     ),
-                      //   ),
-                      // ),
-                      //   title: Text('Produto ${index + 1}'),
-                      //   subtitle: Text('Descrição do produto ${index + 1}'),
-                      //   trailing: Text('\$${(index + 1) * 10}'),
-                      //   onTap: () {
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       SnackBar(
-                      //         content: Text('Produto ${index + 1} selecionado'),
-                      //         duration: const Duration(seconds: 2),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
                       child: Column(
                         children: [
                           Container(
@@ -171,6 +145,29 @@ class _productState extends State<product> {
                                 ),
                               );
                             },
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.green,
+                                ),
+                                child: const Text('Chat'),
+                              ),
+                              const SizedBox(width: 8),
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.red,
+                                ),
+                                child: const Text('Pedir'),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                           ),
                         ],
                       ),
