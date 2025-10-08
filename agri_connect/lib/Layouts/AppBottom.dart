@@ -16,7 +16,16 @@ class Appbottom extends StatefulWidget {
 class _AppbottomState extends State<Appbottom> {
   final List<Widget> _screens = [
     const index(currentIndex: 0),
-    const product(),
+    const product(
+      productName: '',
+      price: '',
+      seller: '',
+      location: '',
+      availability: '',
+      imageEmoji: '',
+      rating: 0.0,
+      reviewCount: 0,
+    ),
     const chat(),
     const profile(),
   ];
