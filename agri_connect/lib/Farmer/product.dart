@@ -1,3 +1,4 @@
+import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:flutter/material.dart';
 
@@ -344,11 +345,9 @@ class _productState extends State<product> {
           child: InkWell(
             borderRadius: BorderRadius.circular(32.5),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Adicionar novo produto'),
-                  duration: Duration(seconds: 2),
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const addProduct()),
               );
             },
             child: const Icon(Icons.add, color: Colors.white, size: 30),
