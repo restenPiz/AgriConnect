@@ -32,7 +32,7 @@ class _productState extends State<product> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12.0),
-
+        scrollDirection: Axis.vertical,
         //*start with the product list
         child: Column(
           children: [
@@ -97,6 +97,52 @@ class _productState extends State<product> {
                     }),
                   ],
                 ),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  //*Start with the card of products
+                  ...List.generate(10, (index) {
+                    return Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 0,
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                'https://via.placeholder.com/150?text=Produto+${index + 1}',
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        title: Text('Produto ${index + 1}'),
+                        subtitle: Text('Descrição do produto ${index + 1}'),
+                        trailing: Text('\$${(index + 1) * 10}'),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Produto ${index + 1} selecionado'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
+                ],
               ),
             ),
           ],
