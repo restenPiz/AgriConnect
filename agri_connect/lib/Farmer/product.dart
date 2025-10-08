@@ -36,14 +36,42 @@ class _productState extends State<product> {
         //*start with the product list
         child: Column(
           children: [
-            Expanded(child: Row(children: [
-
-              ],
-            )),
-            Expanded(child: Column(children: [
-
-              ],
-            )),
+            Container(
+              child: ListTile(
+                title: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar produtos',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                ),
+                // trailing: const Icon(Icons.search, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              child: Row(
+                children: [
+                  //*Start with the filter button
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.filter_list, color: Colors.white),
+                    label: const Text('Filtrar'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
