@@ -86,7 +86,7 @@ class _productState extends State<product> {
                           },
                           child: Text('Item ${index + 1}'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[400],
+                            backgroundColor: Colors.green[600],
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
@@ -99,6 +99,7 @@ class _productState extends State<product> {
                 ),
               ),
             ),
+            const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
