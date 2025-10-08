@@ -54,22 +54,49 @@ class _productState extends State<product> {
               ),
             ),
             const SizedBox(height: 10),
-            Container(
-              child: Row(
-                children: [
-                  //*Start with the filter button
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.filter_list, color: Colors.white),
-                    label: const Text('Filtrar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[600],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                child: Row(
+                  children: [
+                    //*Start with the filter button
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.filter_list, color: Colors.white),
+                      label: const Text('Filtrar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+
+                    // Adicionar espaçamento
+                    const SizedBox(width: 8),
+
+                    // Laço for para adicionar múltiplos botões/widgets
+                    ...List.generate(5, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print('Botão ${index + 1} pressionado');
+                          },
+                          child: Text('Item ${index + 1}'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[400],
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
             ),
           ],
