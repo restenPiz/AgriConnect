@@ -82,7 +82,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
                   SizedBox(height: 8),
                   Text(
                     "Seus produtos estão gerando mais lucro!",
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
                 ],
