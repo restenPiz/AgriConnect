@@ -1,3 +1,4 @@
+import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:flutter/material.dart';
 
 class myProduct extends StatefulWidget {
@@ -266,16 +267,48 @@ class _myProductState extends State<myProduct> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Adicionar novo produto')),
-          );
-        },
-        backgroundColor: const Color(0xFFFF5722),
-        icon: const Icon(Icons.add),
-        label: const Text('Adicionar'),
+      floatingActionButton: Container(
+        width: 65,
+        height: 65,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.green[400]!,
+              Colors.green[600]!,
+              Colors.green[800]!,
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+            BoxShadow(
+              color: Colors.green.withOpacity(0.2),
+              blurRadius: 25,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(32.5),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const addProduct()),
+              );
+            },
+            child: const Icon(Icons.add, color: Colors.white, size: 30),
+          ),
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
