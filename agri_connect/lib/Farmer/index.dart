@@ -64,7 +64,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
           children: [
             /// Card de boas-vindas
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
               decoration: BoxDecoration(
                 color: Colors.green[600],
                 borderRadius: BorderRadius.circular(16),
