@@ -1,14 +1,14 @@
 import 'package:agri_connect/Auth/createAccount.dart';
 import 'package:flutter/material.dart';
 
-class login extends StatefulWidget {
-  const login({super.key});
+class welcome extends StatefulWidget {
+  const welcome({super.key});
 
   @override
-  State<login> createState() => _loginState();
+  State<welcome> createState() => _welcomeState();
 }
 
-class _loginState extends State<login> {
+class _welcomeState extends State<welcome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
