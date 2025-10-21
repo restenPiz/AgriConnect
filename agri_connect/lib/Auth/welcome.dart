@@ -1,4 +1,5 @@
 import 'package:agri_connect/Auth/createAccount.dart';
+import 'package:agri_connect/Auth/login.dart';
 import 'package:flutter/material.dart';
 
 class welcome extends StatefulWidget {
@@ -64,7 +65,7 @@ class _welcomeState extends State<welcome> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const CreateAccount()),
+                  MaterialPageRoute(builder: (_) => const login()),
                 );
               },
               child: Text(
