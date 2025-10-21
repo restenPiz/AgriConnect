@@ -23,7 +23,7 @@ class _CreateAccountState extends State<CreateAccount> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.green[600],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -74,7 +74,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.amber[700],
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
@@ -109,7 +109,7 @@ class _CreateAccountState extends State<CreateAccount> {
           color: isSelected ? Colors.green[50] : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.green : Colors.grey.shade300,
+            color: isSelected ? Colors.lightGreen : Colors.grey.shade300,
             width: 2,
           ),
         ),

@@ -103,7 +103,7 @@ class _loginState extends State<login> {
               Container(
                 padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
-                  color: Colors.green[500],
+                  color: Colors.green[400],
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
