@@ -68,7 +68,7 @@ class _welcomeState extends State<welcome> {
                 );
               },
               child: Text(
-                "Começar",
+                "Login",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -89,7 +89,7 @@ class _welcomeState extends State<welcome> {
                 );
               },
               child: Text(
-                "Saiba Mais",
+                "Criar Conta",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
