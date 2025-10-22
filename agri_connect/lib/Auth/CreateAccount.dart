@@ -26,73 +26,87 @@ class _CreateAccountState extends State<CreateAccount> {
       backgroundColor: Colors.green[600],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Botões de seleção
-            Row(
-              children: [
-                Expanded(
-                  child: _buildRoleButton(
-                    "agricultor",
-                    Icons.agriculture,
-                    "Agricultor",
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: _buildRoleButton(
-                    "comprador",
-                    Icons.store,
-                    "Comprador",
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 25),
-
-            /// Campos de texto comuns a todos
-            _buildTextField("Nome Completo", "João Machado"),
-            const SizedBox(height: 15),
-            _buildTextField("Telefone", "+258 84 567 8901"),
-
-            const SizedBox(height: 15),
-
-            /// Campos diferentes dependendo do papel
-            if (selectedRole == "agricultor") ...[
-              _buildTextField("Localização da Fazenda", "Sofala, Beira"),
-              const SizedBox(height: 15),
-              _buildTextField("Tipo de Cultivo Principal", "Milho, Feijão"),
-            ] else if (selectedRole == "comprador") ...[
-              _buildTextField("Nome do Negócio", "Mercado Central"),
-              const SizedBox(height: 15),
-              _buildTextField("Localização do Negócio", "Beira, Sofala"),
+        child: Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: Colors.green[400],
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
             ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Botões de seleção
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildRoleButton(
+                      "agricultor",
+                      Icons.agriculture,
+                      "Agricultor",
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: _buildRoleButton(
+                      "comprador",
+                      Icons.store,
+                      "Comprador",
+                    ),
+                  ),
+                ],
+              ),
 
-            const SizedBox(height: 25),
+              const SizedBox(height: 25),
 
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber[700],
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              /// Campos de texto comuns a todos
+              _buildTextField("Nome Completo", "João Machado"),
+              const SizedBox(height: 15),
+              _buildTextField("Telefone", "+258 84 567 8901"),
+
+              const SizedBox(height: 15),
+
+              /// Campos diferentes dependendo do papel
+              if (selectedRole == "agricultor") ...[
+                _buildTextField("Localização da Fazenda", "Sofala, Beira"),
+                const SizedBox(height: 15),
+                _buildTextField("Tipo de Cultivo Principal", "Milho, Feijão"),
+              ] else if (selectedRole == "comprador") ...[
+                _buildTextField("Nome do Negócio", "Mercado Central"),
+                const SizedBox(height: 15),
+                _buildTextField("Localização do Negócio", "Beira, Sofala"),
+              ],
+
+              const SizedBox(height: 25),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber[700],
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const index()),
+                  );
+                },
+                child: const Text(
+                  "Criar Conta",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const index()),
-                );
-              },
-              child: const Text(
-                "Criar Conta",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
