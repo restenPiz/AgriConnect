@@ -99,7 +99,7 @@ class _loginState extends State<login> {
               ),
               const SizedBox(height: 40),
 
-              // Login Form Card
+              //* Login Form Card
               Container(
                 padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
@@ -118,7 +118,7 @@ class _loginState extends State<login> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Email Field
+                      //* Email Field
                       TextFormField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
@@ -151,7 +151,7 @@ class _loginState extends State<login> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Password Field
+                      //* Password Field
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscure,
@@ -192,9 +192,8 @@ class _loginState extends State<login> {
                         validator: _passwordValidator,
                         autofillHints: const [AutofillHints.password],
                       ),
-                      const SizedBox(height: 5),
 
-                      // Forgot Password Link
+                      //* Forgot Password Link
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -214,7 +213,6 @@ class _loginState extends State<login> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5),
 
                       // Error Message
                       if (_errorMessage != null)
