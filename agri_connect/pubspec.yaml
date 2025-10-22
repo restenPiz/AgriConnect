@@ -16,6 +16,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  http: ^1.5.0
+  shared_preferences: ^2.5.3 
 
   flutter_lints: ^5.0.0
 
