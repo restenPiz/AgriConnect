@@ -65,25 +65,28 @@ class _CreateAccountState extends State<CreateAccount> {
 
               const SizedBox(height: 25),
 
-              /// Campos de texto comuns a todos
-              _buildTextField("Nome Completo", "João Machado"),
-              const SizedBox(height: 15),
-              _buildTextField("Telefone", "+258 84 567 8901"),
-
-              const SizedBox(height: 15),
-
               /// Campos diferentes dependendo do papel
               if (selectedRole == "agricultor") ...[
-                _buildTextField("Localização da Fazenda", "Sofala, Beira"),
                 const SizedBox(height: 15),
-                _buildTextField("Tipo de Cultivo Principal", "Milho, Feijão"),
+                _buildTextField("Nome Completo", "João Machado"),
+                const SizedBox(height: 15),
+                _buildTextField("Email", "mauropeniel7@gmail.com"),
+                const SizedBox(height: 15),
+                _buildTextField("Password", "*********"),
+                const SizedBox(height: 15),
+                _buildTextField("Telefone", "+258 84 567 8901"),
+                const SizedBox(height: 15),
+                _buildTextField("Localização", "Cidade da Beira"),
               ] else if (selectedRole == "comprador") ...[
-                _buildTextField("Nome do Negócio", "Mercado Central"),
                 const SizedBox(height: 15),
-                _buildTextField("Localização do Negócio", "Beira, Sofala"),
+                _buildTextField("Nome Completo", "João Machado"),
+                const SizedBox(height: 15),
+                _buildTextField("Email", "mauropeniel7@gmail.com"),
+                const SizedBox(height: 15),
+                _buildTextField("Password", "*********"),
               ],
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
