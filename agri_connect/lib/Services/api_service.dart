@@ -3,11 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // IMPORTANT: Change this to your Laravel API URL
-  // For Android Emulator use: http://10.0.2.2:8000/api
-  // For iOS Simulator use: http://localhost:8000/api
-  // For Physical Device use: http://YOUR_IP:8000/api
-  static const String baseUrl = 'http://10.0.2.2:8000/api';
+  static const String baseUrl = 'http://127.0.0.1:8000/api/';
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();
