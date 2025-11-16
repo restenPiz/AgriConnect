@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:agri_connect/services/api_service.dart';
+import 'package:agri_connect/Farmer/index.dart';
 
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
@@ -37,22 +39,106 @@ class _loginState extends State<login> {
   }
 
   Future<void> _handleLogin() async {
+    // Clear previous error
     setState(() {
       _errorMessage = null;
     });
 
+    // Validate form
     if (!_formKey.currentState!.validate()) return;
 
+    // Start loading
     setState(() {
       _loading = true;
     });
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      print('=== LOGIN DEBUG ===');
+      print('Email: ${_emailCtrl.text.trim()}');
+      print('Attempting login...');
 
-    setState(() {
-      _loading = false;
-    });
+      // Call API
+      final result = await ApiService().login(
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+      );
+
+      // Stop loading
+      setState(() {
+        _loading = false;
+      });
+
+      if (!mounted) return;
+
+      print('Login result: $result');
+
+      if (result['success']) {
+        // Get user data
+        final userData = result['data']['user'];
+        final userType = userData['user_type'];
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Login realizado com sucesso!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Navigate based on user type
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (userType == 'farmer') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const index()),
+          );
+        } else if (userType == 'buyer') {
+          // Navigate to buyer dashboard
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (_) => const BuyerIndex()),
+          // );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tela do comprador ainda não implementada'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        // Show error message
+        setState(() {
+          _errorMessage = result['message'] ?? 'Erro ao fazer login';
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Credenciais inválidas'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Login error: $e');
+
+      setState(() {
+        _loading = false;
+        _errorMessage = 'Erro ao conectar ao servidor';
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro de conexão: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   @override
@@ -99,11 +185,11 @@ class _loginState extends State<login> {
               ),
               const SizedBox(height: 40),
 
-              //* Login Form Card
+              // Login Form Card
               Container(
                 padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
-                  color: Colors.green[400],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -118,7 +204,7 @@ class _loginState extends State<login> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      //* Email Field
+                      // Email Field
                       TextFormField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
@@ -144,14 +230,16 @@ class _loginState extends State<login> {
                             ),
                           ),
                           filled: true,
-                          fillColor: Colors.grey[50],
+                          fillColor: _loading
+                              ? Colors.grey[200]
+                              : Colors.grey[50],
                         ),
                         validator: _emailValidator,
                         autofillHints: const [AutofillHints.email],
                       ),
                       const SizedBox(height: 16),
 
-                      //* Password Field
+                      // Password Field
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscure,
@@ -187,32 +275,42 @@ class _loginState extends State<login> {
                             ),
                           ),
                           filled: true,
-                          fillColor: Colors.grey[50],
+                          fillColor: _loading
+                              ? Colors.grey[200]
+                              : Colors.grey[50],
                         ),
                         validator: _passwordValidator,
                         autofillHints: const [AutofillHints.password],
                       ),
+                      const SizedBox(height: 12),
 
-                      //* Forgot Password Link
+                      // Forgot Password Link
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: _loading
                               ? null
                               : () {
-                                  Navigator.of(
-                                    context,
-                                  ).pushNamed('/forgotPassword');
+                                  // TODO: Implement forgot password
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Funcionalidade em desenvolvimento',
+                                      ),
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  );
                                 },
                           child: Text(
                             'Esqueceu a senha?',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.green[600],
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 8),
 
                       // Error Message
                       if (_errorMessage != null)
@@ -248,7 +346,7 @@ class _loginState extends State<login> {
                       // Login Button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber[700],
+                          backgroundColor: Colors.green[600],
                           foregroundColor: Colors.white,
                           minimumSize: const Size(double.infinity, 54),
                           shape: RoundedRectangleBorder(
@@ -274,8 +372,64 @@ class _loginState extends State<login> {
                                 ),
                               ),
                       ),
+                      const SizedBox(height: 20),
+
+                      // Divider
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: Colors.grey[300])),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'ou',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: Colors.grey[300])),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Create Account Button
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.green[600]!, width: 2),
+                          foregroundColor: Colors.green[600],
+                          minimumSize: const Size(double.infinity, 54),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _loading
+                            ? null
+                            : () {
+                                Navigator.pop(context);
+                              },
+                        child: const Text(
+                          'Criar nova conta',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Back Button
+              TextButton.icon(
+                onPressed: _loading
+                    ? null
+                    : () {
+                        Navigator.of(context).pop();
+                      },
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text(
+                  'Voltar',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ],
