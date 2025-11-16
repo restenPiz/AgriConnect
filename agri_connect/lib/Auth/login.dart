@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:agri_connect/services/api_service.dart';
 import 'package:agri_connect/Farmer/index.dart';
+import 'package:agri_connect/Services/api_service.dart';
+import 'package:flutter/material.dart';
 
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
@@ -185,11 +185,11 @@ class _loginState extends State<login> {
               ),
               const SizedBox(height: 40),
 
-              // Login Form Card
+              //* Login Form Card
               Container(
                 padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.green[400],
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -204,7 +204,7 @@ class _loginState extends State<login> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Email Field
+                      //* Email Field
                       TextFormField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
@@ -230,16 +230,14 @@ class _loginState extends State<login> {
                             ),
                           ),
                           filled: true,
-                          fillColor: _loading
-                              ? Colors.grey[200]
-                              : Colors.grey[50],
+                          fillColor: Colors.grey[50],
                         ),
                         validator: _emailValidator,
                         autofillHints: const [AutofillHints.email],
                       ),
                       const SizedBox(height: 16),
 
-                      // Password Field
+                      //* Password Field
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscure,
@@ -275,42 +273,32 @@ class _loginState extends State<login> {
                             ),
                           ),
                           filled: true,
-                          fillColor: _loading
-                              ? Colors.grey[200]
-                              : Colors.grey[50],
+                          fillColor: Colors.grey[50],
                         ),
                         validator: _passwordValidator,
                         autofillHints: const [AutofillHints.password],
                       ),
-                      const SizedBox(height: 12),
 
-                      // Forgot Password Link
+                      //* Forgot Password Link
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: _loading
                               ? null
                               : () {
-                                  // TODO: Implement forgot password
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Funcionalidade em desenvolvimento',
-                                      ),
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  );
+                                  Navigator.of(
+                                    context,
+                                  ).pushNamed('/forgotPassword');
                                 },
                           child: Text(
                             'Esqueceu a senha?',
                             style: TextStyle(
-                              color: Colors.green[600],
+                              color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
 
                       // Error Message
                       if (_errorMessage != null)
@@ -346,7 +334,7 @@ class _loginState extends State<login> {
                       // Login Button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[600],
+                          backgroundColor: Colors.amber[700],
                           foregroundColor: Colors.white,
                           minimumSize: const Size(double.infinity, 54),
                           shape: RoundedRectangleBorder(
@@ -372,64 +360,8 @@ class _loginState extends State<login> {
                                 ),
                               ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // Divider
-                      Row(
-                        children: [
-                          Expanded(child: Divider(color: Colors.grey[300])),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'ou',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ),
-                          Expanded(child: Divider(color: Colors.grey[300])),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Create Account Button
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.green[600]!, width: 2),
-                          foregroundColor: Colors.green[600],
-                          minimumSize: const Size(double.infinity, 54),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: _loading
-                            ? null
-                            : () {
-                                Navigator.pop(context);
-                              },
-                        child: const Text(
-                          'Criar nova conta',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Back Button
-              TextButton.icon(
-                onPressed: _loading
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                      },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text(
-                  'Voltar',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ],

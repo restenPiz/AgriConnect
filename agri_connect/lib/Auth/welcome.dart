@@ -55,8 +55,8 @@ class _welcomeState extends State<welcome> {
             SizedBox(height: 40),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.green,
+                backgroundColor: Colors.amber[700],
+                foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
