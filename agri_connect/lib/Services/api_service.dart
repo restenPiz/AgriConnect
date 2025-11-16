@@ -173,11 +173,11 @@ class ApiService {
   }
 
   // Get user profile
-  Future<Map<String, dynamic>> getProfile() async {
+  Future<Map<String, dynamic>> getProfile(int id) async {
     try {
       final response = await http
           .get(
-            Uri.parse('$baseUrl/user'),
+            Uri.parse('$baseUrl/user/$id'),
             headers: _getHeaders(requiresAuth: true),
           )
           .timeout(const Duration(seconds: 10));

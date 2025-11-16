@@ -1,6 +1,7 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
+import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 
 class index extends StatefulWidget {
@@ -22,6 +23,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    loadUser();
   }
 
   @override
@@ -36,6 +38,19 @@ class _indexState extends State<index> with TickerProviderStateMixin {
     });
     _animationController.reset();
     _animationController.forward();
+  }
+
+  dynamic user;
+
+  void loadUser() async {
+    try {
+      final result = await ApiService().getProfile;
+      setState(() {
+        user = result;
+      });
+    } catch (e) {
+      print("Erro: $e");
+    }
   }
 
   @override
@@ -70,17 +85,17 @@ class _indexState extends State<index> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
-                children: const [
+                children: [
                   Text(
-                    "Olá, João! 🌿",
-                    style: TextStyle(
+                    "Olá, ${user['name']} ! 🌿",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     "Seus produtos estão gerando mais lucro!",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                     textAlign: TextAlign.center,
