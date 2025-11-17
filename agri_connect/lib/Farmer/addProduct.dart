@@ -47,7 +47,6 @@ class _addProductState extends State<addProduct> {
   DateTime? _expiryDate;
   bool _isLoading = false;
 
-  // Replace with your Laravel API URL
   final String apiUrl = 'http://10.153.126.12:8000/api/storeProduct';
   // final String authToken = 'YOUR_AUTH_TOKEN'; // Get from login/storage
 
