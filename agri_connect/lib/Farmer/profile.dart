@@ -122,8 +122,8 @@ class _profileState extends State<profile> {
                   const SizedBox(height: 16),
 
                   // Name
-                  const Text(
-                    'João Machado',
+                  Text(
+                    '${user['name']}',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _profileState extends State<profile> {
 
                   // Location
                   Text(
-                    'Agricultor • Beira, Sofala',
+                    'Agricultor • ${user['address'] ?? 'Endereço não definido'}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),
