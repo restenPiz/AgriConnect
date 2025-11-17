@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -18,8 +19,6 @@ class _addProductState extends State<addProduct> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-
-  int? userId;
 
   String _selectedUnit = 'kg';
   final List<Map<String, String>> _units = [
@@ -50,8 +49,32 @@ class _addProductState extends State<addProduct> {
   DateTime? _expiryDate;
   bool _isLoading = false;
 
+  // Replace with your Laravel API URL
   final String apiUrl = 'http://10.153.126.12:8000/api/storeProduct';
-  // final String authToken = 'YOUR_AUTH_TOKEN'; // Get from login/storage
+  int? userId; // Will be loaded from storage
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        userId = prefs.getInt('user_id');
+      });
+
+      if (userId == null) {
+        print('ERRO: User ID não encontrado no SharedPreferences');
+      } else {
+        print('User ID carregado: $userId');
+      }
+    } catch (e) {
+      print("Erro ao carregar usuário: $e");
+    }
+  }
 
   @override
   void dispose() {
@@ -60,21 +83,6 @@ class _addProductState extends State<addProduct> {
     _quantityController.dispose();
     _priceController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  void loadUser() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      userId = prefs.getInt('user_id');
-    } catch (e) {
-      print("Erro ao carregar usuário: $e");
-    }
   }
 
   Future<void> _pickImages() async {
@@ -131,21 +139,34 @@ class _addProductState extends State<addProduct> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // Check if userId exists
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Erro: Usuário não autenticado. Faça login novamente.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
 
       try {
+        print('Sending request to: $apiUrl');
+        print('User ID: $userId');
+
         var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
         // Add headers
-        if (userId != null) {
-          request.headers['Authorization'] = userId.toString();
-        }
         request.headers['Accept'] = 'application/json';
 
-        // Add form fields
-        request.fields['farmer_id'] = userId?.toString() ?? '';
+        // Add form fields including farmer_id
+        request.fields['farmer_id'] = userId.toString();
         request.fields['name'] = _nameController.text;
         request.fields['description'] = _descriptionController.text;
         request.fields['price'] = _priceController.text;
@@ -210,19 +231,41 @@ class _addProductState extends State<addProduct> {
 
           Navigator.pop(context, true); // Return to previous screen
         } else {
-          // throw Exception('Err ao adicionar produto: ${response.body}');
+          // Detailed error logging
           print('Status Code: ${response.statusCode}');
           print('Response Body: ${response.body}');
           print('Response Headers: ${response.headers}');
+
+          String errorMessage = 'Erro ao adicionar produto';
+          try {
+            var errorData = jsonDecode(response.body);
+            if (errorData['message'] != null) {
+              errorMessage = errorData['message'];
+            }
+            if (errorData['errors'] != null) {
+              errorMessage += '\n${errorData['errors']}';
+            }
+          } catch (e) {
+            errorMessage = 'Status ${response.statusCode}: ${response.body}';
+          }
+
+          throw Exception(errorMessage);
         }
       } catch (e) {
+        print('Error details: $e');
+
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao adicionar produto: $e'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
           ),
         );
       } finally {
