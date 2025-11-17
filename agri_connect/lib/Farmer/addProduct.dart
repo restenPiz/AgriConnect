@@ -189,7 +189,10 @@ class _addProductState extends State<addProduct> {
 
           Navigator.pop(context, true); // Return to previous screen
         } else {
-          throw Exception('Err ao adicionar produto: ${response.body}');
+          // throw Exception('Err ao adicionar produto: ${response.body}');
+          print('Status Code: ${response.statusCode}');
+          print('Response Body: ${response.body}');
+          print('Response Headers: ${response.headers}');
         }
       } catch (e) {
         if (!mounted) return;
