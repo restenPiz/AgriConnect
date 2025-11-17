@@ -48,7 +48,7 @@ class _addProductState extends State<addProduct> {
   bool _isLoading = false;
 
   // Replace with your Laravel API URL
-  final String apiUrl = 'http://your-domain.com/api/products';
+  final String apiUrl = 'http://10.153.126.12:8000/api/products';
   final String authToken = 'YOUR_AUTH_TOKEN'; // Get from login/storage
 
   @override
