@@ -1,7 +1,9 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
+import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class profile extends StatefulWidget {
   final int currentIndex;
@@ -12,6 +14,39 @@ class profile extends StatefulWidget {
 }
 
 class _profileState extends State<profile> {
+  dynamic user;
+  int? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      userId = prefs.getInt('user_id');
+
+      if (userId == null) {
+        print("Erro: user_id não encontrado no SharedPreferences");
+        return;
+      }
+
+      final result = await ApiService().getProfile(userId!);
+
+      if (result['success'] == true) {
+        setState(() {
+          user = result['data']['user']; // pega apenas o objeto "user"
+        });
+      } else {
+        print("Erro ao buscar perfil: ${result['message']}");
+      }
+    } catch (e) {
+      print("Erro ao carregar usuário: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
