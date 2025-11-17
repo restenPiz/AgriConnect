@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class addProduct extends StatefulWidget {
   const addProduct({super.key});
@@ -17,6 +18,8 @@ class _addProductState extends State<addProduct> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+
+  int? userId;
 
   String _selectedUnit = 'kg';
   final List<Map<String, String>> _units = [
@@ -57,6 +60,21 @@ class _addProductState extends State<addProduct> {
     _quantityController.dispose();
     _priceController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      userId = prefs.getInt('user_id');
+    } catch (e) {
+      print("Erro ao carregar usuário: $e");
+    }
   }
 
   Future<void> _pickImages() async {
@@ -121,10 +139,13 @@ class _addProductState extends State<addProduct> {
         var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
         // Add headers
-        // request.headers['Authorization'] = 'Bearer $authToken';
+        if (userId != null) {
+          request.headers['Authorization'] = userId.toString();
+        }
         request.headers['Accept'] = 'application/json';
 
         // Add form fields
+        request.fields['farmer_id'] = userId?.toString() ?? '';
         request.fields['name'] = _nameController.text;
         request.fields['description'] = _descriptionController.text;
         request.fields['price'] = _priceController.text;
