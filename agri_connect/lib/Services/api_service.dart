@@ -177,7 +177,7 @@ class ApiService {
     try {
       final response = await http
           .get(
-            Uri.parse('$baseUrl/user/$id'),
+            Uri.parse('$baseUrl/userData/$id'),
             headers: _getHeaders(requiresAuth: true),
           )
           .timeout(const Duration(seconds: 10));

@@ -1,6 +1,7 @@
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
@@ -77,6 +78,10 @@ class _loginState extends State<login> {
         final userData = result['data']['user'];
         final userType = userData['user_type'];
 
+        // SAVE USER ID HERE
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('user_id', userData['id']);
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -86,25 +91,12 @@ class _loginState extends State<login> {
           ),
         );
 
-        // Navigate based on user type
         await Future.delayed(const Duration(milliseconds: 500));
 
         if (userType == 'farmer') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const index()),
-          );
-        } else if (userType == 'buyer') {
-          // Navigate to buyer dashboard
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => const BuyerIndex()),
-          // );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tela do comprador ainda não implementada'),
-              backgroundColor: Colors.orange,
-            ),
           );
         }
       } else {

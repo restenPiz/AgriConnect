@@ -3,6 +3,7 @@ import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class index extends StatefulWidget {
   final int currentIndex;
@@ -15,6 +16,9 @@ class index extends StatefulWidget {
 class _indexState extends State<index> with TickerProviderStateMixin {
   int _selectedindex = 0;
   late AnimationController _animationController;
+
+  dynamic user;
+  int? userId;
 
   @override
   void initState() {
@@ -40,16 +44,28 @@ class _indexState extends State<index> with TickerProviderStateMixin {
     _animationController.forward();
   }
 
-  dynamic user;
-
+  /// Carrega usuário usando SharedPreferences e API
   void loadUser() async {
     try {
-      final result = await ApiService().getProfile;
-      setState(() {
-        user = result;
-      });
+      final prefs = await SharedPreferences.getInstance();
+      userId = prefs.getInt('user_id');
+
+      if (userId == null) {
+        print("Erro: user_id não encontrado no SharedPreferences");
+        return;
+      }
+
+      final result = await ApiService().getProfile(userId!);
+
+      if (result['success'] == true) {
+        setState(() {
+          user = result['data']['user']; // pega apenas o objeto "user"
+        });
+      } else {
+        print("Erro ao buscar perfil: ${result['message']}");
+      }
     } catch (e) {
-      print("Erro: $e");
+      print("Erro ao carregar usuário: $e");
     }
   }
 
@@ -87,7 +103,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
               child: Column(
                 children: [
                   Text(
-                    "Olá, ${user['name']} ! 🌿",
+                    "Olá, ${user != null ? user['name'] : '...'} ! 🌿",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
