@@ -160,7 +160,7 @@ class _myProductState extends State<myProduct> {
 
     try {
       final response = await http.delete(
-        Uri.parse('http://10.153.126.12:8000/api/products/$id'),
+        Uri.parse('http://10.153.126.12:8000/api/productDelete/$id'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -178,7 +178,9 @@ class _myProductState extends State<myProduct> {
           );
         }
       } else {
-        throw Exception('Erro ao excluir produto');
+        print('Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        print('Response Headers: ${response.headers}');
       }
     } catch (e) {
       print('Erro ao excluir produto: $e');
