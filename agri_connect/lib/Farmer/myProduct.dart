@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class myProduct extends StatefulWidget {
   const myProduct({super.key});
@@ -9,72 +12,123 @@ class myProduct extends StatefulWidget {
 }
 
 class _myProductState extends State<myProduct> {
-  // Sample product data
-  List<Map<String, dynamic>> products = [
-    {
-      'id': 1,
-      'name': 'Tomate Cereja',
-      'quantity': 250,
-      'unit': 'kg',
-      'price': 30.00,
-      'status': 'Ativo',
-      'views': 145,
-      'sales': 23,
-      'image':
-          'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-    },
-    {
-      'id': 2,
-      'name': 'Alface Romana',
-      'quantity': 180,
-      'unit': 'kg',
-      'price': 25.00,
-      'status': 'Ativo',
-      'views': 98,
-      'sales': 15,
-      'image':
-          'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-    },
-    {
-      'id': 3,
-      'name': 'Cenoura',
-      'quantity': 320,
-      'unit': 'kg',
-      'price': 18.00,
-      'status': 'Ativo',
-      'views': 210,
-      'sales': 45,
-      'image':
-          'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-    },
-    {
-      'id': 4,
-      'name': 'Batata Doce',
-      'quantity': 150,
-      'unit': 'kg',
-      'price': 22.00,
-      'status': 'Pausado',
-      'views': 67,
-      'sales': 8,
-      'image':
-          'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-    },
-    {
-      'id': 5,
-      'name': 'Abóbora',
-      'quantity': 200,
-      'unit': 'kg',
-      'price': 15.00,
-      'status': 'Ativo',
-      'views': 132,
-      'sales': 28,
-      'image':
-          'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-    },
+  List<Map<String, dynamic>> products = [];
+  int? userId;
+  bool _isLoading = true;
+  String _selectedFilter = 'Todos';
+  final List<String> _filters = [
+    'Todos',
+    'active',
+    'soldOut',
+    'expired',
+    'inactive',
   ];
 
-  String _selectedFilter = 'Todos';
-  final List<String> _filters = ['Todos', 'Ativo', 'Pausado', 'Esgotado'];
+  // API URL - ajuste conforme necessário
+  final String apiUrl = 'http://10.153.126.12:8000/api';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        userId = prefs.getInt('user_id');
+      });
+
+      if (userId == null) {
+        print('ERRO: User ID não encontrado no SharedPreferences');
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        print('User ID carregado: $userId');
+        await _fetchProducts();
+      }
+    } catch (e) {
+      print("Erro ao carregar usuário: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchProducts() async {
+    if (userId == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      print('Fetching products for user: $userId');
+
+      final response = await http.get(
+        Uri.parse('$apiUrl/products/$userId'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['data'] != null) {
+          setState(() {
+            products = List<Map<String, dynamic>>.from(
+              (data['data'] as List).map(
+                (item) => {
+                  'id': item['id'],
+                  'name': item['name'],
+                  'description': item['description'] ?? '',
+                  'quantity': double.parse(
+                    item['available_quantity'].toString(),
+                  ),
+                  'unit': item['unit'],
+                  'price': double.parse(item['price'].toString()),
+                  'status': item['status'],
+                  'category': item['category'],
+                  'is_organic':
+                      item['is_organic'] == 1 || item['is_organic'] == true,
+                  'image_urls': item['image_urls'] is String
+                      ? jsonDecode(item['image_urls'])
+                      : item['image_urls'],
+                  'harvest_date': item['harvest_date'],
+                  'expiry_date': item['expiry_date'],
+                  'rating': item['rating'] != null
+                      ? double.parse(item['rating'].toString())
+                      : null,
+                  'review_count': item['review_count'] ?? 0,
+                  'created_at': item['created_at'],
+                },
+              ),
+            );
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('Erro ao carregar produtos: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro ao buscar produtos: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar produtos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   List<Map<String, dynamic>> get filteredProducts {
     if (_selectedFilter == 'Todos') {
@@ -83,48 +137,136 @@ class _myProductState extends State<myProduct> {
     return products.where((p) => p['status'] == _selectedFilter).toList();
   }
 
-  void _deleteProduct(int id) {
-    showDialog(
+  Future<void> _deleteProduct(int id) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Excluir Produto'),
         content: const Text('Tem certeza que deseja excluir este produto?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                products.removeWhere((p) => p['id'] == id);
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Produto excluído com sucesso'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Excluir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+
+    if (confirm != true) return;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$apiUrl/products/$id'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          products.removeWhere((p) => p['id'] == id);
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Produto excluído com sucesso'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        throw Exception('Erro ao excluir produto');
+      }
+    } catch (e) {
+      print('Erro ao excluir produto: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao excluir produto: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
-  void _toggleProductStatus(int id) {
-    setState(() {
-      final product = products.firstWhere((p) => p['id'] == id);
-      product['status'] = product['status'] == 'Ativo' ? 'Pausado' : 'Ativo';
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Status do produto atualizado'),
-        backgroundColor: Colors.green,
-      ),
-    );
+  Future<void> _toggleProductStatus(int id) async {
+    final product = products.firstWhere((p) => p['id'] == id);
+    final newStatus = product['status'] == 'active' ? 'inactive' : 'active';
+
+    try {
+      final response = await http.put(
+        Uri.parse('$apiUrl/products/$id'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'status': newStatus}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          product['status'] = newStatus;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Status do produto atualizado'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        throw Exception('Erro ao atualizar status');
+      }
+    } catch (e) {
+      print('Erro ao atualizar status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao atualizar status: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Mapeamento de filtros para exibição em português
+  String _getFilterLabel(String filter) {
+    switch (filter) {
+      case 'Todos':
+        return 'Todos';
+      case 'active':
+        return 'Ativo';
+      case 'soldOut':
+        return 'Esgotado';
+      case 'expired':
+        return 'Expirado';
+      case 'inactive':
+        return 'Inativo';
+      default:
+        return filter;
+    }
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status) {
+      case 'active':
+        return 'Ativo';
+      case 'soldOut':
+        return 'Esgotado';
+      case 'expired':
+        return 'Expirado';
+      case 'inactive':
+        return 'Inativo';
+      default:
+        return status;
+    }
   }
 
   @override
@@ -144,129 +286,146 @@ class _myProductState extends State<myProduct> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Buscar produtos')));
-            },
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchProducts,
           ),
         ],
       ),
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
-        children: [
-          // Statistics Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [const Color(0xFF2E7D32), Colors.green[700]!],
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
               ),
-            ),
-            child: Column(
+            )
+          : Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      'Total',
-                      '${products.length}',
-                      Icons.inventory_2,
+                // Statistics Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [const Color(0xFF2E7D32), Colors.green[700]!],
                     ),
-                    _buildStatItem(
-                      'Ativos',
-                      '${products.where((p) => p['status'] == 'Ativo').length}',
-                      Icons.check_circle,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatItem(
+                            'Total',
+                            '${products.length}',
+                            Icons.inventory_2,
+                          ),
+                          _buildStatItem(
+                            'Ativos',
+                            '${products.where((p) => p['status'] == 'active').length}',
+                            Icons.check_circle,
+                          ),
+                          _buildStatItem(
+                            'Inativos',
+                            '${products.where((p) => p['status'] == 'inactive').length}',
+                            Icons.pause_circle,
+                          ),
+                          _buildStatItem(
+                            'Esgotados',
+                            '${products.where((p) => p['status'] == 'soldOut').length}',
+                            Icons.remove_shopping_cart,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Filter Chips
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  color: Colors.white,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: _filters.map((filter) {
+                        final isSelected = _selectedFilter == filter;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(_getFilterLabel(filter)),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedFilter = filter;
+                              });
+                            },
+                            selectedColor: const Color(0xFF2E7D32),
+                            labelStyle: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            backgroundColor: Colors.grey[200],
+                            checkmarkColor: Colors.white,
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    _buildStatItem(
-                      'Vendas',
-                      '${products.fold(0, (sum, p) => sum + (p['sales'] as int))}',
-                      Icons.shopping_cart,
-                    ),
-                    _buildStatItem(
-                      'Visualizações',
-                      '${products.fold(0, (sum, p) => sum + (p['views'] as int))}',
-                      Icons.visibility,
-                    ),
-                  ],
+                  ),
+                ),
+
+                // Products List
+                Expanded(
+                  child: filteredProducts.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                size: 80,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Nenhum produto encontrado',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton.icon(
+                                onPressed: _fetchProducts,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Recarregar'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _fetchProducts,
+                          color: const Color(0xFF2E7D32),
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: filteredProducts.length,
+                            itemBuilder: (context, index) {
+                              final product = filteredProducts[index];
+                              return _buildProductCard(product);
+                            },
+                          ),
+                        ),
                 ),
               ],
             ),
-          ),
-
-          // Filter Chips
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.white,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: _filters.map((filter) {
-                  final isSelected = _selectedFilter == filter;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(filter),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedFilter = filter;
-                        });
-                      },
-                      selectedColor: const Color(0xFF2E7D32),
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey[700],
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                      backgroundColor: Colors.grey[200],
-                      checkmarkColor: Colors.white,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-
-          // Products List
-          Expanded(
-            child: filteredProducts.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 80,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Nenhum produto encontrado',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return _buildProductCard(product);
-                    },
-                  ),
-          ),
-        ],
-      ),
       floatingActionButton: Container(
         width: 65,
         height: 65,
@@ -298,11 +457,16 @@ class _myProductState extends State<myProduct> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(32.5),
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const addProduct()),
               );
+
+              // Recarregar produtos após adicionar novo
+              if (result == true) {
+                _fetchProducts();
+              }
             },
             child: const Icon(Icons.add, color: Colors.white, size: 30),
           ),
@@ -341,7 +505,11 @@ class _myProductState extends State<myProduct> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> product) {
-    final isActive = product['status'] == 'Ativo';
+    final isActive = product['status'] == 'active';
+    final imageUrls = product['image_urls'] as List?;
+    final imageUrl = imageUrls != null && imageUrls.isNotEmpty
+        ? 'http://10.153.126.12:8000${imageUrls[0]}'
+        : null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -373,17 +541,23 @@ class _myProductState extends State<myProduct> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      product['image'],
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.image,
-                          size: 40,
-                          color: Colors.white,
-                        );
-                      },
-                    ),
+                    child: imageUrl != null
+                        ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.image,
+                                size: 40,
+                                color: Colors.white,
+                              );
+                            },
+                          )
+                        : const Icon(
+                            Icons.image,
+                            size: 40,
+                            color: Colors.white,
+                          ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -416,7 +590,7 @@ class _myProductState extends State<myProduct> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              product['status'],
+                              _getStatusLabel(product['status']),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -461,37 +635,36 @@ class _myProductState extends State<myProduct> {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.visibility,
-                            size: 14,
-                            color: Colors.grey[500],
+                      if (product['is_organic'] == true)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${product['views']}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          const SizedBox(width: 12),
-                          Icon(
-                            Icons.shopping_cart,
-                            size: 14,
-                            color: Colors.grey[500],
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.eco,
+                                size: 12,
+                                color: Colors.green[700],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Orgânico',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.green[700],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${product['sales']} vendas',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
                     ],
                   ),
                 ),
