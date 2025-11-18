@@ -25,7 +25,7 @@ class _myProductState extends State<myProduct> {
   ];
 
   // API URL - ajuste conforme necessário
-  final String apiUrl = 'http://10.153.126.12:8000/api';
+  // final String apiUrl = 'http://10.153.126.12:8000/api/';
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _myProductState extends State<myProduct> {
       print('Fetching products for user: $userId');
 
       final response = await http.get(
-        Uri.parse('$apiUrl/products/$userId'),
+        Uri.parse('http://10.153.126.12:8000/api/product/$userId'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -160,7 +160,7 @@ class _myProductState extends State<myProduct> {
 
     try {
       final response = await http.delete(
-        Uri.parse('$apiUrl/products/$id'),
+        Uri.parse('http://10.153.126.12:8000/api/products/$id'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -199,7 +199,7 @@ class _myProductState extends State<myProduct> {
 
     try {
       final response = await http.put(
-        Uri.parse('$apiUrl/products/$id'),
+        Uri.parse('http://10.153.126.12:8000/api/products/$id'),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
