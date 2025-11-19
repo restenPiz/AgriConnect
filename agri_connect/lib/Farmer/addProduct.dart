@@ -59,6 +59,14 @@ class _addProductState extends State<addProduct> {
   void initState() {
     super.initState();
     _loadUserId();
+
+    //*To load the product data for editing
+    if (widget.product != null) {
+      _nameController.text = widget.product!['name'];
+      _priceController.text = widget.product!['price'].toString();
+      _quantityController.text = widget.product!['quantity'].toString();
+      _descriptionController.text = widget.product!['description'] ?? '';
+    }
   }
 
   Future<void> _loadUserId() async {
@@ -277,6 +285,41 @@ class _addProductState extends State<addProduct> {
           });
         }
       }
+    }
+  }
+
+  Future<void> updateProduct() async {
+    final id = widget.product!['id'];
+    final url = Uri.parse("http://10.148.161.12:8000/api/productUpdate/$id");
+
+    try {
+      final response = await http.put(
+        url,
+        body: {
+          "name": _nameController.text,
+          "price": _priceController.text,
+          "quantity": _quantityController.text,
+          "description": _descriptionController.text,
+        },
+      );
+
+      final data = json.decode(response.body);
+
+      if (data['success'] == true) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Produto atualizado!")));
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? "Erro ao atualizar")),
+        );
+      }
+    } catch (e) {
+      print("Erro: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Erro de conexão")));
     }
   }
 
