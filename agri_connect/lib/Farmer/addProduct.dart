@@ -73,6 +73,8 @@ class _addProductState extends State<addProduct> {
           ? DateTime.parse(widget.product!['expiry_date'])
           : null;
       _selectedCategory = widget.product!['category'] ?? 'vegetables';
+      _selectedUnit = widget.product!['unit'] ?? 'kg';
+      _isOrganic = widget.product!['is_organic'] == 1;
     }
   }
 
