@@ -685,8 +685,14 @@ class _myProductState extends State<myProduct> {
               children: [
                 TextButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Editar ${product['name']}')),
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text('Editar ${product['name']}')),
+                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => addProduct(product: product),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.edit, size: 18),
