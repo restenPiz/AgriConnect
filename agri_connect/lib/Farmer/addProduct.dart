@@ -50,7 +50,7 @@ class _addProductState extends State<addProduct> {
   bool _isLoading = false;
 
   // Replace with your Laravel API URL
-  final String apiUrl = 'http://10.182.4.12:8000/api/storeProduct';
+  final String apiUrl = 'http://10.148.161.12:8000/api/storeProduct';
   int? userId; // Will be loaded from storage
 
   @override
