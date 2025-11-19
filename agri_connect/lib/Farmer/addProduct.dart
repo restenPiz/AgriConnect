@@ -7,7 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class addProduct extends StatefulWidget {
-  const addProduct({super.key});
+  final Map<String, dynamic>? product;
+
+  const addProduct({super.key, this.product});
 
   @override
   State<addProduct> createState() => _addProductState();
