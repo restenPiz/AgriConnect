@@ -66,6 +66,13 @@ class _addProductState extends State<addProduct> {
       _priceController.text = widget.product!['price'].toString();
       _quantityController.text = widget.product!['quantity'].toString();
       _descriptionController.text = widget.product!['description'] ?? '';
+      _harvestDate = widget.product!['harvest_date'] != null
+          ? DateTime.parse(widget.product!['harvest_date'])
+          : null;
+      _expiryDate = widget.product!['expiry_date'] != null
+          ? DateTime.parse(widget.product!['expiry_date'])
+          : null;
+      _selectedCategory = widget.product!['category'] ?? 'vegetables';
     }
   }
 
