@@ -325,10 +325,8 @@ class _addProductState extends State<addProduct> {
         );
       }
     } catch (e) {
-      print("Erro: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Erro de conexão")));
+      // Response is not available here; log the exception instead.
+      print('Error updating product: $e');
     }
   }
 
