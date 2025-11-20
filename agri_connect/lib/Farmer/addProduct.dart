@@ -502,7 +502,14 @@ class _addProductState extends State<addProduct> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submitForm,
+                        // onPressed: _isLoading ? null : _submitForm,
+                        onPressed: widget.product != null
+                            ? _isLoading
+                                  ? null
+                                  : updateProduct
+                            : _isLoading
+                            ? null
+                            : _submitForm,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF5722),
                           foregroundColor: Colors.white,
@@ -512,14 +519,16 @@ class _addProductState extends State<addProduct> {
                           elevation: 4,
                           shadowColor: const Color(0xFFFF5722).withOpacity(0.4),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle, size: 24),
-                            SizedBox(width: 12),
+                            const Icon(Icons.check_circle, size: 24),
+                            const SizedBox(width: 12),
                             Text(
-                              'Adicionar Produto',
-                              style: TextStyle(
+                              widget.product != null
+                                  ? 'Atualizar Produto'
+                                  : 'Adicionar Produto',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
