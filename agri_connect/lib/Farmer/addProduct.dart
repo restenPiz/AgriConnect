@@ -53,6 +53,7 @@ class _addProductState extends State<addProduct> {
 
   // Replace with your Laravel API URL
   final String apiUrl = 'http://10.38.53.12:8000/api/storeProduct';
+  final String apiUpdate = 'http://10.38.53.12:8000/api/productUpdate';
   int? userId; // Will be loaded from storage
 
   @override
@@ -298,35 +299,150 @@ class _addProductState extends State<addProduct> {
   }
 
   Future<void> updateProduct() async {
-    final id = widget.product!['id'];
-    final url = Uri.parse("http://10.38.53.12:8000/api/productUpdate/$id");
-
-    try {
-      final response = await http.post(
-        url,
-        body: {
-          "name": _nameController.text,
-          "price": _priceController.text,
-          "quantity": _quantityController.text,
-          "description": _descriptionController.text,
-        },
-      );
-
-      final data = json.decode(response.body);
-
-      if (data['success'] == true) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Produto atualizado!")));
-        Navigator.pop(context, true);
-      } else {
+    if (_formKey.currentState!.validate()) {
+      // Check if userId exists
+      if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? "Erro ao atualizar")),
+          const SnackBar(
+            content: Text(
+              'Erro: Usuário não autenticado. Faça login novamente.',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
+        return;
       }
-    } catch (e) {
-      // Response is not available here; log the exception instead.
-      print('Error updating product: $e');
+
+      // Get product ID
+      final productId = widget.product!['id'];
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        print('Updating product ID: $productId');
+        print('Sending request to: $apiUrl/products/$productId');
+        print('User ID: $userId');
+
+        var request = http.MultipartRequest(
+          'POST', // Alguns servidores não suportam PUT com multipart, use POST
+          Uri.parse('$apiUrl/products/$productId'),
+        );
+
+        // Add headers
+        request.headers['Accept'] = 'application/json';
+
+        // Para simular PUT request (se o Laravel precisar)
+        request.fields['_method'] = 'PUT';
+
+        // Add form fields including farmer_id
+        request.fields['farmer_id'] = userId.toString();
+        request.fields['name'] = _nameController.text;
+        request.fields['description'] = _descriptionController.text;
+        request.fields['price'] = _priceController.text;
+        request.fields['unit'] = _selectedUnit;
+        request.fields['available_quantity'] = _quantityController.text;
+        request.fields['category'] = _selectedCategory;
+        request.fields['is_organic'] = _isOrganic ? '1' : '0';
+
+        if (_harvestDate != null) {
+          request.fields['harvest_date'] = _harvestDate!
+              .toIso8601String()
+              .split('T')[0];
+        }
+
+        if (_expiryDate != null) {
+          request.fields['expiry_date'] = _expiryDate!.toIso8601String().split(
+            'T',
+          )[0];
+        }
+
+        // Add images only if new images were selected
+        if (_selectedImages.isNotEmpty) {
+          for (int i = 0; i < _selectedImages.length; i++) {
+            var image = await http.MultipartFile.fromPath(
+              'images[]',
+              _selectedImages[i].path,
+            );
+            request.files.add(image);
+          }
+          print('New images added: ${_selectedImages.length}');
+        } else {
+          print('No new images to upload');
+        }
+
+        // Debug: print all fields being sent
+        print('Fields being sent:');
+        request.fields.forEach((key, value) {
+          print('  $key: $value');
+        });
+
+        // Send request
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        print('Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          var data = jsonDecode(response.body);
+
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Produto "${_nameController.text}" atualizado com sucesso!',
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+
+          // Return to previous screen with success flag
+          Navigator.pop(context, true);
+        } else {
+          // Detailed error logging
+          String errorMessage = 'Erro ao atualizar produto';
+          try {
+            var errorData = jsonDecode(response.body);
+            if (errorData['message'] != null) {
+              errorMessage = errorData['message'];
+            }
+            if (errorData['errors'] != null) {
+              errorMessage += '\nErros: ${errorData['errors']}';
+            }
+          } catch (e) {
+            errorMessage = 'Status ${response.statusCode}: ${response.body}';
+          }
+
+          throw Exception(errorMessage);
+        }
+      } catch (e) {
+        print('Error details: $e');
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao atualizar produto: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
