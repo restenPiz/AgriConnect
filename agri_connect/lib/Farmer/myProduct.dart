@@ -684,16 +684,18 @@ class _myProductState extends State<myProduct> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextButton.icon(
-                  onPressed: () {
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Text('Editar ${product['name']}')),
-                    // );
-                    Navigator.push(
+                  onPressed: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => addProduct(product: product),
                       ),
                     );
+
+                    // Recarregar lista se atualizou
+                    if (result == true) {
+                      await _fetchProducts(); // Isso já recarrega!
+                    }
                   },
                   icon: const Icon(Icons.edit, size: 18),
                   label: const Text('Editar'),
