@@ -302,7 +302,7 @@ class _addProductState extends State<addProduct> {
     final url = Uri.parse("http://10.38.53.12:8000/api/productUpdate/$id");
 
     try {
-      final response = await http.put(
+      final response = await http.post(
         url,
         body: {
           "name": _nameController.text,
