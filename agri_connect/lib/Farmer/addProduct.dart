@@ -52,7 +52,7 @@ class _addProductState extends State<addProduct> {
   bool _isLoading = false;
 
   // Replace with your Laravel API URL
-  final String apiUrl = 'http://10.148.161.12:8000/api/storeProduct';
+  final String apiUrl = 'http://10.38.53.12:8000/api/storeProduct';
   int? userId; // Will be loaded from storage
 
   @override
@@ -299,7 +299,7 @@ class _addProductState extends State<addProduct> {
 
   Future<void> updateProduct() async {
     final id = widget.product!['id'];
-    final url = Uri.parse("http://10.148.161.12:8000/api/productUpdate/$id");
+    final url = Uri.parse("http://10.38.53.12:8000/api/productUpdate/$id");
 
     try {
       final response = await http.put(
