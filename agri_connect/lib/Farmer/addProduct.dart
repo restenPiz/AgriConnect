@@ -322,19 +322,19 @@ class _addProductState extends State<addProduct> {
 
       try {
         print('Updating product ID: $productId');
-        print('Sending request to: $apiUrl/products/$productId');
+        print('Sending request to: $apiUpdate/$productId');
         print('User ID: $userId');
 
         var request = http.MultipartRequest(
           'POST', // Alguns servidores não suportam PUT com multipart, use POST
-          Uri.parse('$apiUrl/products/$productId'),
+          Uri.parse('$apiUpdate/$productId'),
         );
 
         // Add headers
         request.headers['Accept'] = 'application/json';
 
         // Para simular PUT request (se o Laravel precisar)
-        request.fields['_method'] = 'PUT';
+        request.fields['_method'] = 'POST';
 
         // Add form fields including farmer_id
         request.fields['farmer_id'] = userId.toString();
