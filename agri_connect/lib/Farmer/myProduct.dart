@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_connect/Farmer/addProduct.dart';
+import 'package:agri_connect/Farmer/index.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +26,7 @@ class _myProductState extends State<myProduct> {
   ];
 
   // API URL - ajuste conforme necessário
-  // final String apiUrl = 'http://10.130.109.12:8000/api/';
+  // final String apiUrl = 'http://10.38.53.12:8000/api/';
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class _myProductState extends State<myProduct> {
       print('Fetching products for user: $userId');
 
       final response = await http.get(
-        Uri.parse('http://10.130.109.12:8000/api/product/$userId'),
+        Uri.parse('http://10.38.53.12:8000/api/product/$userId'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -160,7 +161,7 @@ class _myProductState extends State<myProduct> {
 
     try {
       final response = await http.delete(
-        Uri.parse('http://10.130.109.12:8000/api/productDelete/$id'),
+        Uri.parse('http://10.38.53.12:8000/api/productDelete/$id'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -201,7 +202,7 @@ class _myProductState extends State<myProduct> {
 
     try {
       final response = await http.put(
-        Uri.parse('http://10.130.109.12:8000/api/products/$id'),
+        Uri.parse('http://10.38.53.12:8000/api/products/$id'),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -280,7 +281,12 @@ class _myProductState extends State<myProduct> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const index()),
+            );
+          },
         ),
         title: const Text(
           'Meus Produtos',
@@ -510,7 +516,7 @@ class _myProductState extends State<myProduct> {
     final isActive = product['status'] == 'active';
     final imageUrls = product['image_urls'] as List?;
     final imageUrl = imageUrls != null && imageUrls.isNotEmpty
-        ? 'http://10.130.109.12:8000${imageUrls[0]}'
+        ? 'http://10.38.53.12:8000${imageUrls[0]}'
         : null;
 
     return Container(
