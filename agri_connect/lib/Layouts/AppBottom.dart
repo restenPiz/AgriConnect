@@ -1,6 +1,6 @@
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
-import 'package:agri_connect/Farmer/product.dart';
+import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ class Appbottom extends StatefulWidget {
 class _AppbottomState extends State<Appbottom> {
   final List<Widget> _screens = [
     const index(currentIndex: 0),
-    const product(),
+    const myProduct(),
     const chat(),
     const profile(),
   ];
