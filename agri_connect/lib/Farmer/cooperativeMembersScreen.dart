@@ -248,6 +248,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2E7D32),
+                                foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -392,6 +393,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddMemberDialog,
         backgroundColor: const Color(0xFF2E7D32),
+        foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add),
         label: const Text('Adicionar Membro'),
       ),
