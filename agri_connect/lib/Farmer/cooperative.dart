@@ -58,7 +58,7 @@ class _CooperativeState extends State<Cooperative> {
 
     try {
       final response = await http.get(
-        Uri.parse('$apiUrl/cooperatives'),
+        Uri.parse('$apiUrl/cooperative'),
         headers: {'Accept': 'application/json'},
       );
 

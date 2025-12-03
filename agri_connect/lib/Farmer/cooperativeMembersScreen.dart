@@ -16,7 +16,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
   List<Map<String, dynamic>> members = [];
   List<Map<String, dynamic>> availableFarmers = [];
   bool _isLoading = true;
-  final String apiUrl = 'http://10.153.126.12:8000/api';
+  final String apiUrl = 'http://10.130.109.12:8000/api';
 
   @override
   void initState() {
@@ -480,7 +480,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
                 Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
-                  'Desde ${member['joined_at'] ?? 'N/A'}',
+                  '${member['joined_at'] ?? 'N/A'}',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
