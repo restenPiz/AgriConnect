@@ -370,6 +370,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
                           label: const Text('Adicionar Primeiro Membro'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2E7D32),
+                            foregroundColor: Colors.white,
                           ),
                         ),
                       ],
