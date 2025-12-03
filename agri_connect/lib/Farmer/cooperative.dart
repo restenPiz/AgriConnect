@@ -369,6 +369,7 @@ class _CooperativeState extends State<Cooperative> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
