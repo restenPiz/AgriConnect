@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:agri_connect/Farmer/addCooperative.dart';
+import 'package:agri_connect/Farmer/cooperativeMembersScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -589,42 +591,6 @@ class _CooperativeState extends State<Cooperative> {
           Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
-    );
-  }
-}
-
-// Placeholder screens - You'll need to create these
-class AddCooperativeScreen extends StatelessWidget {
-  final int? userId;
-  final Map<String, dynamic>? cooperative;
-
-  const AddCooperativeScreen({super.key, this.userId, this.cooperative});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          cooperative == null ? 'Nova Cooperativa' : 'Editar Cooperativa',
-        ),
-      ),
-      body: const Center(
-        child: Text('Tela de criação/edição - será implementada'),
-      ),
-    );
-  }
-}
-
-class CooperativeMembersScreen extends StatelessWidget {
-  final Map<String, dynamic> cooperative;
-
-  const CooperativeMembersScreen({super.key, required this.cooperative});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Membros da Cooperativa')),
-      body: const Center(child: Text('Tela de membros - será implementada')),
     );
   }
 }
