@@ -1,75 +1,16 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
-import 'package:agri_connect/Farmer/cooperative.dart';
-import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
-import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Index extends StatefulWidget {
   final int currentIndex;
-  const Index({super.key, this.currentIndex = 0});
+  const Index({super.key, this.currentIndex = 1});
 
   @override
   State<Index> createState() => _IndexState();
 }
 
-class _IndexState extends State<Index> with TickerProviderStateMixin {
-  int _selectedIndex = 0;
-  late AnimationController _animationController;
-
-  dynamic user;
-  int? userId;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    loadUser();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _onItemTapped(int Index) {
-    setState(() {
-      _selectedIndex = Index;
-    });
-    _animationController.reset();
-    _animationController.forward();
-  }
-
-  /// Carrega usuário usando SharedPreferences e API
-  void loadUser() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      userId = prefs.getInt('user_id');
-
-      if (userId == null) {
-        print("Erro: user_id não encontrado no SharedPreferences");
-        return;
-      }
-
-      final result = await ApiService().getProfile(userId!);
-
-      if (result['success'] == true) {
-        setState(() {
-          user = result['data']['user']; // pega apenas o objeto "user"
-        });
-      } else {
-        print("Erro ao buscar perfil: ${result['message']}");
-      }
-    } catch (e) {
-      print("Erro ao carregar usuário: $e");
-    }
-  }
-
+class _IndexState extends State<Index> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +19,7 @@ class _IndexState extends State<Index> with TickerProviderStateMixin {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "AgriConnect",
+          "Indexos Proximos",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
@@ -92,168 +33,287 @@ class _IndexState extends State<Index> with TickerProviderStateMixin {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12.0),
+        scrollDirection: Axis.vertical,
+        //*start with the Index list
         child: Column(
           children: [
-            /// Card de boas-vindas
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
-              decoration: BoxDecoration(
-                color: Colors.green[600],
-                borderRadius: BorderRadius.circular(16),
+              child: ListTile(
+                title: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar produtos',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                ),
+                // trailing: const Icon(Icons.search, color: Colors.grey),
               ),
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                child: Row(
+                  children: [
+                    //*Start with the filter button
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.filter_list, color: Colors.white),
+                      label: const Text('Filtrar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                    ),
+
+                    // Adicionar espaçamento
+                    const SizedBox(width: 8),
+
+                    // Laço for para adicionar múltiplos botões/widgets
+                    ...List.generate(5, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print('Botão ${index + 1} pressionado');
+                          },
+                          child: Text('Item ${index + 1}'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green[600],
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
               child: Column(
                 children: [
-                  Text(
-                    "Olá, ${user != null ? user['name'] : '...'} ! 🌿",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Seus produtos estão gerando mais lucro!",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
+                  //*Start with the card of products
+                  ...List.generate(10, (index) {
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image container with green background
+                          Container(
+                            width: double.infinity,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF8FBF9F),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                            ),
+                            child: Center(
+                              child: Image.network(
+                                'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
+                                height: 500,
+                                width: 100,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+
+                          // Product info section
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Product name and price row
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Produto ${index + 1}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${(index + 1) * 30} MT/kg',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+
+                                // Location info
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on,
+                                      size: 14,
+                                      color: Colors.red,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        'João Machado • Beira, Sofala',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+
+                                // Availability info
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.inventory_2_outlined,
+                                      size: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Disponível: ${(index + 1) * 250}kg',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.star,
+                                      size: 14,
+                                      color: Colors.amber,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '4.8 (29 avaliações)',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Action buttons
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Chat com vendedor do Produto ${index + 1}',
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.chat_bubble_outline,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Chat'),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.green,
+                                          side: const BorderSide(
+                                            color: Colors.green,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Produto ${index + 1} adicionado ao pedido',
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.shopping_cart,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Pedir'),
+                                        style: ElevatedButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          backgroundColor: Colors.orange,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            /// Estatísticas
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildStatCard("12", "PRODUTOS ATIVOS"),
-                _buildStatCard("45", "PEDIDOS MÊS"),
-                _buildStatCard("4.8★", "AVALIAÇÃO"),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            const SizedBox(height: 100), // Espaço extra para o FAB
           ],
         ),
       ),
-
-      /// Floating Action Button Customizado
-      floatingActionButton: Container(
-        width: 65,
-        height: 65,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.green[400]!,
-              Colors.green[600]!,
-              Colors.green[800]!,
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Colors.green.withOpacity(0.2),
-              blurRadius: 25,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(32.5),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const addProduct()),
-              );
-            },
-            child: const Icon(Icons.add, color: Colors.white, size: 30),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       /// Bottom Navigation Bar Moderno
       bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
-    );
-  }
-
-  /// Estatísticas
-  Widget _buildStatCard(String value, String label) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: const Offset(2, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, color: Colors.black54),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Opções com navegação
-  Widget _buildOptionCard(IconData icon, String label, {VoidCallback? onTap}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: Colors.green),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
