@@ -32,7 +32,7 @@ class _AppbottomState extends State<Appbottom> {
 
   @override
   Widget build(BuildContext context) {
-    String userType = 'user_type';
+    String userType = 'buyer';
 
     return Container(
       height: 122,
