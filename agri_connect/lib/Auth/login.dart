@@ -1,3 +1,4 @@
+import 'package:agri_connect/Buyer/index.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,11 @@ class _loginState extends State<login> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const index()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const Index()),
           );
         }
       } else {

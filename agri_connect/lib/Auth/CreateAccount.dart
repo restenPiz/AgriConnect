@@ -1,3 +1,4 @@
+import 'package:agri_connect/Buyer/index.dart';
 import 'package:flutter/material.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:agri_connect/Farmer/index.dart';
@@ -74,7 +75,10 @@ class _CreateAccountState extends State<CreateAccount> {
           );
         } else {
           // Navigate to buyer dashboard
-          Navigator.pushReplacementNamed(context, '/buyer/index');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const Index()),
+          );
         }
       } else {
         // Show error message
