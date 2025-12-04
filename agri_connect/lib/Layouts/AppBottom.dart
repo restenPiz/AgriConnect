@@ -24,12 +24,7 @@ class _AppbottomState extends State<Appbottom> {
     super.initState();
     userType = 'buyer'; // Initialize in initState
     _screens = (userType == 'buyer')
-        ? [
-            const index(currentIndex: 0),
-            const product(currentIndex: 1),
-            const chat(),
-            const profile(),
-          ]
+        ? [const product(currentIndex: 1), const chat(), const profile()]
         : [
             const index(currentIndex: 0),
             const myProduct(),
