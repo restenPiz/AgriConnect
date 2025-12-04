@@ -19,7 +19,7 @@ class _IndexState extends State<Index> {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "Indexos Proximos",
+          "Productos Proximos",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
