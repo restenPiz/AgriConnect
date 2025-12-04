@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class product extends StatefulWidget {
   final int currentIndex;
@@ -11,6 +15,86 @@ class product extends StatefulWidget {
 }
 
 class _productState extends State<product> {
+  List<Map<String, dynamic>> products = [];
+  int? userId;
+  bool _isLoading = true;
+  String _selectedFilter = 'Todos';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.202.9.12:8000/api/product'),
+        headers: {'Accept': 'application/json'},
+      );
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['data'] != null) {
+          setState(() {
+            products = List<Map<String, dynamic>>.from(
+              (data['data'] as List).map(
+                (item) => {
+                  'id': item['id'],
+                  'name': item['name'],
+                  'description': item['description'] ?? '',
+                  'quantity': double.parse(
+                    item['available_quantity'].toString(),
+                  ),
+                  'unit': item['unit'],
+                  'price': double.parse(item['price'].toString()),
+                  'status': item['status'],
+                  'category': item['category'],
+                  'is_organic':
+                      item['is_organic'] == 1 || item['is_organic'] == true,
+                  'image_urls': item['image_urls'] is String
+                      ? jsonDecode(item['image_urls'])
+                      : item['image_urls'],
+                  'harvest_date': item['harvest_date'],
+                  'expiry_date': item['expiry_date'],
+                  'rating': item['rating'] != null
+                      ? double.parse(item['rating'].toString())
+                      : null,
+                  'review_count': item['review_count'] ?? 0,
+                  'created_at': item['created_at'],
+                },
+              ),
+            );
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('Erro ao carregar produtos: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro ao buscar produtos: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar produtos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,288 +115,345 @@ class _productState extends State<product> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12.0),
-        scrollDirection: Axis.vertical,
-        //*start with the product list
-        child: Column(
-          children: [
-            Container(
-              child: ListTile(
-                title: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Pesquisar produtos',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                  ),
-                ),
-                // trailing: const Icon(Icons.search, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Container(
-                child: Row(
-                  children: [
-                    //*Start with the filter button
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.filter_list, color: Colors.white),
-                      label: const Text('Filtrar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[600],
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                      ),
-                    ),
-
-                    // Adicionar espaçamento
-                    const SizedBox(width: 8),
-
-                    // Laço for para adicionar múltiplos botões/widgets
-                    ...List.generate(5, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            print('Botão ${index + 1} pressionado');
-                          },
-                          child: Text('Item ${index + 1}'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[600],
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SingleChildScrollView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(12.0),
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
-                  //*Start with the card of products
-                  ...List.generate(10, (index) {
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Container(
+                    child: ListTile(
+                      title: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Pesquisar produtos',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        ),
                       ),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      child: Row(
                         children: [
-                          // Image container with green background
-                          Container(
-                            width: double.infinity,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF8FBF9F),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                              ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.filter_list,
+                              color: Colors.white,
                             ),
-                            child: Center(
-                              child: Image.network(
-                                'https://cdn.wizard.com.br/wp-content/uploads/2017/01/05115936/aprenda-os-nomes-das-frutas-em-ingles.jpg',
-                                height: 500,
-                                width: 100,
-                                fit: BoxFit.contain,
+                            label: const Text('Filtrar'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[600],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                             ),
                           ),
-
-                          // Product info section
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Product name and price row
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Produto ${index + 1}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          const SizedBox(width: 8),
+                          ...List.generate(
+                            products.length > 5 ? 5 : products.length,
+                            (index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    print(
+                                      'Categoria: ${products[index]['category']}',
+                                    );
+                                  },
+                                  child: Text(
+                                    products[index]['category'] ??
+                                        'Item ${index + 1}',
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[600],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
                                     ),
-                                    Text(
-                                      '${(index + 1) * 30} MT/kg',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                                const SizedBox(height: 8),
-
-                                // Location info
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on,
-                                      size: 14,
-                                      color: Colors.red,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        'João Machado • Beira, Sofala',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-
-                                // Availability info
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.inventory_2_outlined,
-                                      size: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Disponível: ${(index + 1) * 250}kg',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.star,
-                                      size: 14,
-                                      color: Colors.amber,
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      '4.8 (29 avaliações)',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-
-                                // Action buttons
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Chat com vendedor do Produto ${index + 1}',
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.chat_bubble_outline,
-                                          size: 18,
-                                        ),
-                                        label: const Text('Chat'),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.green,
-                                          side: const BorderSide(
-                                            color: Colors.green,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Produto ${index + 1} adicionado ao pedido',
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.shopping_cart,
-                                          size: 18,
-                                        ),
-                                        label: const Text('Pedir'),
-                                        style: ElevatedButton.styleFrom(
-                                          foregroundColor: Colors.white,
-                                          backgroundColor: Colors.orange,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),
-                    );
-                  }),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  products.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              'Nenhum produto disponível',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            children: [
+                              ...List.generate(products.length, (index) {
+                                final product = products[index];
+                                final imageUrl = product['image_urls'] is List
+                                    ? (product['image_urls'] as List).isNotEmpty
+                                          ? product['image_urls'][0]
+                                          : 'https://via.placeholder.com/100'
+                                    : 'https://via.placeholder.com/100';
+
+                                return Card(
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Image container with green background
+                                      Container(
+                                        width: double.infinity,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF8FBF9F),
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Image.network(
+                                            imageUrl,
+                                            height: 100,
+                                            width: 100,
+                                            fit: BoxFit.contain,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Icon(
+                                                    Icons.image_not_supported,
+                                                    size: 50,
+                                                    color: Colors.grey[400],
+                                                  );
+                                                },
+                                          ),
+                                        ),
+                                      ),
+                                      // Product info section
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Product name and price row
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    product['name'] ??
+                                                        'Produto',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${product['price']} MT/${product['unit'] ?? 'kg'}',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 8),
+                                            // Description
+                                            if (product['description'] !=
+                                                    null &&
+                                                product['description']!
+                                                    .isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  bottom: 8.0,
+                                                ),
+                                                child: Text(
+                                                  product['description'],
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            // Category
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 8.0,
+                                              ),
+                                              child: Text(
+                                                'Categoria: ${product['category'] ?? 'N/A'}',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[700],
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                            // Availability info
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.inventory_2_outlined,
+                                                  size: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  'Disponível: ${product['quantity']}${product['unit'] ?? 'kg'}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                const Icon(
+                                                  Icons.star,
+                                                  size: 14,
+                                                  color: Colors.amber,
+                                                ),
+                                                const SizedBox(width: 2),
+                                                Text(
+                                                  '${product['rating'] ?? 0.0} (${product['review_count'] ?? 0} avaliações)',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            // Action buttons
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: OutlinedButton.icon(
+                                                    onPressed: () {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Chat com vendedor de ${product['name']}',
+                                                          ),
+                                                          duration:
+                                                              const Duration(
+                                                                seconds: 2,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.chat_bubble_outline,
+                                                      size: 18,
+                                                    ),
+                                                    label: const Text('Chat'),
+                                                    style: OutlinedButton.styleFrom(
+                                                      foregroundColor:
+                                                          Colors.green,
+                                                      side: const BorderSide(
+                                                        color: Colors.green,
+                                                      ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            '${product['name']} adicionado ao pedido',
+                                                          ),
+                                                          duration:
+                                                              const Duration(
+                                                                seconds: 2,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.shopping_cart,
+                                                      size: 18,
+                                                    ),
+                                                    label: const Text('Pedir'),
+                                                    style: ElevatedButton.styleFrom(
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      backgroundColor:
+                                                          Colors.orange,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-
-      /// Floating Action Button Customizado
       floatingActionButton: Container(
         width: 65,
         height: 65,
@@ -355,8 +496,6 @@ class _productState extends State<product> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-      /// Bottom Navigation Bar Moderno
       bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
     );
   }

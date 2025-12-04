@@ -1,6 +1,7 @@
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
+import 'package:agri_connect/Farmer/product.dart';
 import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +15,28 @@ class Appbottom extends StatefulWidget {
 }
 
 class _AppbottomState extends State<Appbottom> {
-  final List<Widget> _screens = [
-    const index(currentIndex: 0),
-    const myProduct(),
-    const chat(),
-    const profile(),
-  ];
+  String userType = 'buyer';
+
+  late List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    userType = 'buyer'; // Initialize in initState
+    _screens = (userType == 'buyer')
+        ? [
+            const index(currentIndex: 0),
+            const product(currentIndex: 1),
+            const chat(),
+            const profile(),
+          ]
+        : [
+            const index(currentIndex: 0),
+            const myProduct(),
+            const chat(),
+            const profile(),
+          ];
+  }
 
   void _onItemTapped(int index) {
     if (index == widget.currentIndex) return; // evita recarregar mesma página
@@ -32,8 +49,6 @@ class _AppbottomState extends State<Appbottom> {
 
   @override
   Widget build(BuildContext context) {
-    String userType = 'buyer';
-
     return Container(
       height: 122,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
