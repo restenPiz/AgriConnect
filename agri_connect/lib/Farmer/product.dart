@@ -210,11 +210,12 @@ class _productState extends State<product> {
                             children: [
                               ...List.generate(products.length, (index) {
                                 final product = products[index];
-                                final imageUrl = product['image_urls'] is List
-                                    ? (product['image_urls'] as List).isNotEmpty
-                                          ? product['image_urls'][0]
-                                          : 'https://via.placeholder.com/100'
-                                    : 'https://via.placeholder.com/100';
+                                final imageUrls =
+                                    product['image_urls'] as List?;
+                                final imageUrl =
+                                    imageUrls != null && imageUrls.isNotEmpty
+                                    ? 'http://10.202.9.12:8000${imageUrls[0]}'
+                                    : null;
 
                                 return Card(
                                   elevation: 2,
@@ -241,20 +242,32 @@ class _productState extends State<product> {
                                           ),
                                         ),
                                         child: Center(
-                                          child: Image.network(
-                                            imageUrl,
-                                            height: 100,
-                                            width: 100,
-                                            fit: BoxFit.contain,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return Icon(
-                                                    Icons.image_not_supported,
-                                                    size: 50,
-                                                    color: Colors.grey[400],
-                                                  );
-                                                },
-                                          ),
+                                          child: imageUrl != null
+                                              ? Image.network(
+                                                  imageUrl,
+                                                  height: 100,
+                                                  width: 100,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          size: 50,
+                                                          color:
+                                                              Colors.grey[400],
+                                                        );
+                                                      },
+                                                )
+                                              : Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 50,
+                                                  color: Colors.grey[400],
+                                                ),
                                         ),
                                       ),
                                       // Product info section
@@ -295,27 +308,6 @@ class _productState extends State<product> {
                                               ],
                                             ),
                                             const SizedBox(height: 8),
-                                            // Description
-                                            if (product['description'] !=
-                                                    null &&
-                                                product['description']!
-                                                    .isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  bottom: 8.0,
-                                                ),
-                                                child: Text(
-                                                  product['description'],
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            // Category
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                 bottom: 8.0,
@@ -454,48 +446,6 @@ class _productState extends State<product> {
                 ],
               ),
             ),
-      floatingActionButton: Container(
-        width: 65,
-        height: 65,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.green[400]!,
-              Colors.green[600]!,
-              Colors.green[800]!,
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Colors.green.withOpacity(0.2),
-              blurRadius: 25,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(32.5),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const addProduct()),
-              );
-            },
-            child: const Icon(Icons.add, color: Colors.white, size: 30),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
     );
   }
