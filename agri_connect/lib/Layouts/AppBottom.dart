@@ -90,7 +90,6 @@ class _AppbottomState extends State<Appbottom> {
                           "Produtos",
                           1,
                         ),
-                  const SizedBox(width: 40),
                   _buildBottomNavItem(
                     Icons.chat_bubble_outline,
                     Icons.chat_bubble,
