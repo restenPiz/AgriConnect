@@ -1,3 +1,4 @@
+import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
@@ -24,7 +25,12 @@ class _AppbottomState extends State<Appbottom> {
     super.initState();
     userType = 'buyer'; // Initialize in initState
     _screens = (userType == 'buyer')
-        ? [const product(currentIndex: 1), const chat(), const profile()]
+        ? [
+            const product(currentIndex: 0),
+            const Order(),
+            const chat(),
+            const profile(),
+          ]
         : [
             const index(currentIndex: 0),
             const myProduct(),
