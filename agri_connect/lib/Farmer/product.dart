@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 class product extends StatefulWidget {
   final int currentIndex;
-  const product({super.key, this.currentIndex = 1});
+  const product({super.key, this.currentIndex = 0});
 
   @override
   State<product> createState() => _productState();
@@ -241,27 +241,18 @@ class _productState extends State<product> {
                                             topRight: Radius.circular(12),
                                           ),
                                         ),
-                                        child: Center(
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
                                           child: imageUrl != null
                                               ? Image.network(
                                                   imageUrl,
-                                                  height: 100,
-                                                  width: 100,
-                                                  fit: BoxFit.contain,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) {
-                                                        return Icon(
-                                                          Icons
-                                                              .image_not_supported,
-                                                          size: 50,
-                                                          color:
-                                                              Colors.grey[400],
-                                                        );
-                                                      },
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                  fit: BoxFit.cover,
+                                                  alignment: Alignment.center,
                                                 )
                                               : Icon(
                                                   Icons.image_not_supported,
