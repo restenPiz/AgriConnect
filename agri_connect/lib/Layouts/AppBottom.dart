@@ -32,6 +32,8 @@ class _AppbottomState extends State<Appbottom> {
 
   @override
   Widget build(BuildContext context) {
+    String userType = 'user_type';
+
     return Container(
       height: 122,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -68,19 +70,26 @@ class _AppbottomState extends State<Appbottom> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
+                children: <Widget>[
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
                     "Início",
                     0,
                   ),
-                  _buildBottomNavItem(
-                    Icons.inventory_2_outlined,
-                    Icons.inventory_2,
-                    "Produtos",
-                    1,
-                  ),
+                  (userType == 'buyer')
+                      ? _buildBottomNavItem(
+                          Icons.inventory_2_outlined,
+                          Icons.inventory_2,
+                          "Pedidos",
+                          1,
+                        )
+                      : _buildBottomNavItem(
+                          Icons.inventory_2_outlined,
+                          Icons.inventory_2,
+                          "Produtos",
+                          1,
+                        ),
                   const SizedBox(width: 40),
                   _buildBottomNavItem(
                     Icons.chat_bubble_outline,
