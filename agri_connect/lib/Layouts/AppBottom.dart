@@ -26,7 +26,7 @@ class _AppbottomState extends State<Appbottom> {
     userType = 'buyer'; // Initialize in initState
     _screens = (userType == 'buyer')
         ? [
-            const product(currentIndex: 0),
+            const product(currentIndex: 1),
             const Order(),
             const chat(),
             const profile(),
@@ -90,22 +90,15 @@ class _AppbottomState extends State<Appbottom> {
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
-                    "Início",
+                    userType == 'buyer' ? "Productos" : "Inicio",
                     0,
                   ),
-                  (userType == 'buyer')
-                      ? _buildBottomNavItem(
-                          Icons.inventory_2_outlined,
-                          Icons.inventory_2,
-                          "Pedidos",
-                          1,
-                        )
-                      : _buildBottomNavItem(
-                          Icons.inventory_2_outlined,
-                          Icons.inventory_2,
-                          "Produtos",
-                          1,
-                        ),
+                  _buildBottomNavItem(
+                    Icons.inventory_2_outlined,
+                    Icons.inventory_2,
+                    userType == 'buyer' ? "Pedidos" : "Productos",
+                    1,
+                  ),
                   _buildBottomNavItem(
                     Icons.chat_bubble_outline,
                     Icons.chat_bubble,

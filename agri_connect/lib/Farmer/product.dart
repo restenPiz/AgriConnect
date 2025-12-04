@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 class product extends StatefulWidget {
   final int currentIndex;
-  const product({super.key, this.currentIndex = 0});
+  const product({super.key, this.currentIndex = 1});
 
   @override
   State<product> createState() => _productState();
