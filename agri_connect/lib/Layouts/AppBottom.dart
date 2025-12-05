@@ -1,8 +1,8 @@
+import 'package:agri_connect/Buyer/Index.dart';
 import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
-import 'package:agri_connect/Farmer/product.dart';
 import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
 
@@ -23,9 +23,9 @@ class _AppbottomState extends State<Appbottom> {
   @override
   void initState() {
     super.initState(); // Initialize in initState
-    _screens = (userType == 'buyer')
+    _screens = (userType == 'farmer')
         ? [
-            const product(currentIndex: 0),
+            const Index(currentIndex: 0),
             const Order(),
             const chat(),
             const profile(),
@@ -95,7 +95,7 @@ class _AppbottomState extends State<Appbottom> {
                   _buildBottomNavItem(
                     Icons.inventory_2_outlined,
                     Icons.inventory_2,
-                    userType == 'buyer' ? "Pedidos" : "Productos",
+                    userType == 'farmer' ? "Pedidos" : "Productos",
                     1,
                   ),
                   _buildBottomNavItem(
