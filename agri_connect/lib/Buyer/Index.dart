@@ -1,7 +1,6 @@
 import 'dart:convert';
-
 import 'package:agri_connect/Farmer/addProduct.dart';
-import 'package:agri_connect/Layouts/AppBottom.dart';
+import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -477,7 +476,7 @@ class _IndexState extends State<Index> {
                 ],
               ),
             ),
-      bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
+      bottomNavigationBar: AppBottomBuyer(currentIndex: widget.currentIndex),
     );
   }
 }

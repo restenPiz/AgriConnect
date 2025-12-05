@@ -6,16 +6,16 @@ import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
 
-class Appbottom extends StatefulWidget {
+class AppBottomBuyer extends StatefulWidget {
   final int currentIndex;
 
-  const Appbottom({super.key, this.currentIndex = 0});
+  const AppBottomBuyer({super.key, this.currentIndex = 0});
 
   @override
-  State<Appbottom> createState() => _AppbottomState();
+  State<AppBottomBuyer> createState() => _AppBottomBuyerState();
 }
 
-class _AppbottomState extends State<Appbottom> {
+class _AppBottomBuyerState extends State<AppBottomBuyer> {
   late String userType = 'buyer';
 
   late List<Widget> _screens;
@@ -24,8 +24,8 @@ class _AppbottomState extends State<Appbottom> {
   void initState() {
     super.initState(); // Initialize in initState
     _screens = [
-      const index(currentIndex: 0),
-      const myProduct(),
+      const Index(currentIndex: 1),
+      const Order(),
       const chat(),
       const profile(),
     ];
@@ -82,13 +82,13 @@ class _AppbottomState extends State<Appbottom> {
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
-                    "Inicio",
+                    "Productos",
                     0,
                   ),
                   _buildBottomNavItem(
                     Icons.inventory_2_outlined,
                     Icons.inventory_2,
-                    "Productos",
+                    "Pedidos",
                     1,
                   ),
                   _buildBottomNavItem(
