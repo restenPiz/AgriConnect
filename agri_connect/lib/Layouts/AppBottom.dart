@@ -16,14 +16,13 @@ class Appbottom extends StatefulWidget {
 }
 
 class _AppbottomState extends State<Appbottom> {
-  String userType = 'buyer';
+  late String userType = 'buyer';
 
   late List<Widget> _screens;
 
   @override
   void initState() {
-    super.initState();
-    userType = 'buyer'; // Initialize in initState
+    super.initState(); // Initialize in initState
     _screens = (userType == 'buyer')
         ? [
             const product(currentIndex: 0),
@@ -90,7 +89,7 @@ class _AppbottomState extends State<Appbottom> {
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
-                    userType == 'buyer' ? "Productos" : "Inicio",
+                    userType == 'farmer' ? 'Productos' : 'Inicio',
                     0,
                   ),
                   _buildBottomNavItem(
