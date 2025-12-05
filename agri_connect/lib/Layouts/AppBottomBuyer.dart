@@ -24,7 +24,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
   void initState() {
     super.initState(); // Initialize in initState
     _screens = [
-      const Index(currentIndex: 1),
+      const Index(currentIndex: 0),
       const Order(),
       const chat(),
       const profile(),

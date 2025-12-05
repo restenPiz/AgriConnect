@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class Index extends StatefulWidget {
   final int currentIndex;
-  const Index({super.key, this.currentIndex = 1});
+  const Index({super.key, this.currentIndex = 0});
 
   @override
   State<Index> createState() => _IndexState();
