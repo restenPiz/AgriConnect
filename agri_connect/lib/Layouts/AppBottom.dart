@@ -23,9 +23,9 @@ class _AppbottomState extends State<Appbottom> {
   @override
   void initState() {
     super.initState(); // Initialize in initState
-    _screens = (userType == 'farmer')
+    _screens = (userType == 'buyer')
         ? [
-            const Index(currentIndex: 0),
+            const Index(currentIndex: 1),
             const Order(),
             const chat(),
             const profile(),
@@ -89,13 +89,13 @@ class _AppbottomState extends State<Appbottom> {
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
-                    userType == 'farmer' ? 'Productos' : 'Inicio',
+                    userType == 'buyer' ? 'Productos' : 'Inicio',
                     0,
                   ),
                   _buildBottomNavItem(
                     Icons.inventory_2_outlined,
                     Icons.inventory_2,
-                    userType == 'farmer' ? "Pedidos" : "Productos",
+                    userType == 'buyer' ? "Pedidos" : "Productos",
                     1,
                   ),
                   _buildBottomNavItem(
