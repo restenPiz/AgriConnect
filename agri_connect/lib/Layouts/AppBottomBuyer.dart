@@ -22,7 +22,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
 
   @override
   void initState() {
-    super.initState(); // Initialize in initState
+    super.initState();
     _screens = [
       const Index(currentIndex: 0),
       const Order(),
