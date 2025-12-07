@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
 import 'package:flutter/material.dart';
@@ -108,8 +109,13 @@ class _IndexState extends State<Index> {
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => Order()),
+              );
+            },
           ),
         ],
       ),
