@@ -27,7 +27,6 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
     _screens = [
       const Index(currentIndex: 0),
       const MainChat(currentIndex: 2),
-      const chat(),
       const profile(),
     ];
   }
@@ -87,17 +86,17 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
                     0,
                   ),
                   _buildBottomNavItem(
-                    Icons.inventory_2_outlined,
-                    Icons.inventory_2,
-                    "Chat",
-                    1,
-                  ),
-                  _buildBottomNavItem(
                     Icons.chat_bubble_outline,
                     Icons.chat_bubble,
                     "Chat",
-                    2,
+                    1,
                   ),
+                  // _buildBottomNavItem(
+                  //   Icons.chat_bubble_outline,
+                  //   Icons.chat_bubble,
+                  //   "Chat",
+                  //   2,
+                  // ),
                   _buildBottomNavItem(
                     Icons.person_outline,
                     Icons.person,
