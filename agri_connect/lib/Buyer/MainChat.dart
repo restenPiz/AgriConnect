@@ -238,7 +238,7 @@ class _MainChatState extends State<MainChat> {
     );
   }
 
-  Widget _buildChatTile(Map<String, dynamic> chat) {
+  Widget _buildChatTile(Map<String, dynamic> chatData) {
     return InkWell(
       onTap: () {
         Navigator.pop(context);
@@ -265,9 +265,9 @@ class _MainChatState extends State<MainChat> {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: chat['avatarColor'],
+                    backgroundColor: chatData['avatarColor'],
                     child: Text(
-                      chat['avatar'],
+                      chatData['avatar'],
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -275,7 +275,7 @@ class _MainChatState extends State<MainChat> {
                       ),
                     ),
                   ),
-                  if (chat['isOnline'])
+                  if (chatData['isOnline'])
                     Positioned(
                       right: 0,
                       bottom: 0,
@@ -303,10 +303,10 @@ class _MainChatState extends State<MainChat> {
                       children: [
                         Expanded(
                           child: Text(
-                            chat['name'],
+                            chatData['name'],
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: chat['unreadCount'] > 0
+                              fontWeight: chatData['unreadCount'] > 0
                                   ? FontWeight.bold
                                   : FontWeight.w600,
                               color: Colors.black87,
@@ -316,13 +316,13 @@ class _MainChatState extends State<MainChat> {
                           ),
                         ),
                         Text(
-                          chat['time'],
+                          chatData['time'],
                           style: TextStyle(
                             fontSize: 12,
-                            color: chat['unreadCount'] > 0
+                            color: chatData['unreadCount'] > 0
                                 ? const Color(0xFF25D366)
                                 : Colors.grey[600],
-                            fontWeight: chat['unreadCount'] > 0
+                            fontWeight: chatData['unreadCount'] > 0
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
@@ -342,7 +342,7 @@ class _MainChatState extends State<MainChat> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            chat['role'],
+                            chatData['role'],
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey[700],
@@ -357,13 +357,13 @@ class _MainChatState extends State<MainChat> {
                       children: [
                         Expanded(
                           child: Text(
-                            chat['lastMessage'],
+                            chatData['lastMessage'],
                             style: TextStyle(
                               fontSize: 14,
-                              color: chat['unreadCount'] > 0
+                              color: chatData['unreadCount'] > 0
                                   ? Colors.black87
                                   : Colors.grey[600],
-                              fontWeight: chat['unreadCount'] > 0
+                              fontWeight: chatData['unreadCount'] > 0
                                   ? FontWeight.w500
                                   : FontWeight.normal,
                             ),
@@ -371,7 +371,7 @@ class _MainChatState extends State<MainChat> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (chat['unreadCount'] > 0) ...[
+                        if (chatData['unreadCount'] > 0) ...[
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.all(6),
@@ -380,7 +380,7 @@ class _MainChatState extends State<MainChat> {
                               shape: BoxShape.circle,
                             ),
                             child: Text(
-                              '${chat['unreadCount']}',
+                              '${chatData['unreadCount']}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
