@@ -1,8 +1,15 @@
 import 'package:agri_connect/Auth/welcome.dart';
+import 'package:agri_connect/Services/CartItem.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => CartManager(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

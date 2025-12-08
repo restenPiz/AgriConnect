@@ -5,6 +5,9 @@ import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import '../Services/CartItem.dart';
 
 class Index extends StatefulWidget {
   final int currentIndex;
@@ -108,14 +111,45 @@ class _IndexState extends State<Index> {
         ),
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => Order()),
-              );
-            },
+          Consumer<CartManager>(
+            builder: (context, cart, child) => Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.shopping_cart),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Order()),
+                    );
+                  },
+                ),
+                if (cart.itemCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Text(
+                        '${cart.itemCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -432,19 +466,57 @@ class _IndexState extends State<Index> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
-                                                  child: ElevatedButton.icon(
+                                                  child: // No botão "Pedir", substitua o onPressed por:
+                                                  ElevatedButton.icon(
                                                     onPressed: () {
+                                                      // Adicionar ao carrinho
+                                                      context
+                                                          .read<CartManager>()
+                                                          .addItem(product);
+
                                                       ScaffoldMessenger.of(
                                                         context,
                                                       ).showSnackBar(
                                                         SnackBar(
-                                                          content: Text(
-                                                            '${product['name']} adicionado ao pedido',
+                                                          content: Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 12,
+                                                              ),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  '${product['name']} adicionado ao carrinho',
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
+                                                          backgroundColor:
+                                                              Colors.green,
                                                           duration:
                                                               const Duration(
                                                                 seconds: 2,
                                                               ),
+                                                          action: SnackBarAction(
+                                                            label:
+                                                                'VER CARRINHO',
+                                                            textColor:
+                                                                Colors.white,
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder: (_) =>
+                                                                      const Order(),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ),
                                                         ),
                                                       );
                                                     },
