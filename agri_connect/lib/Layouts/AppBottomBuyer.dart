@@ -1,4 +1,5 @@
 import 'package:agri_connect/Buyer/Index.dart';
+import 'package:agri_connect/Buyer/MainChat.dart';
 import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
@@ -25,7 +26,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
     super.initState();
     _screens = [
       const Index(currentIndex: 0),
-      const Order(),
+      const MainChat(currentIndex: 2),
       const chat(),
       const profile(),
     ];
@@ -88,7 +89,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
                   _buildBottomNavItem(
                     Icons.inventory_2_outlined,
                     Icons.inventory_2,
-                    "Pedidos",
+                    "Chat",
                     1,
                   ),
                   _buildBottomNavItem(
