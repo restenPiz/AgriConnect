@@ -93,7 +93,6 @@ class CartManager extends ChangeNotifier {
     );
 
     if (existingIndex >= 0) {
-      // Produto já existe, aumentar quantidade
       if (_items[existingIndex].quantity <
           _items[existingIndex].availableQuantity) {
         _items[existingIndex].quantity++;
