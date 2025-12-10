@@ -1,5 +1,6 @@
-import 'package:agri_connect/Buyer/chat.dart';
-import 'package:flutter/material.dart'; // Ajuste o caminho
+import 'package:agri_connect/Services/ChatService.dart';
+import 'package:flutter/material.dart';
+import 'package:agri_connect/Farmer/chat.dart';
 
 class MainChat extends StatefulWidget {
   final int currentIndex;
@@ -10,11 +11,12 @@ class MainChat extends StatefulWidget {
 }
 
 class _MainChatState extends State<MainChat> {
+  final ChatService _chatService = ChatService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _currentUserId;
 
-  // Sample chat data - Em produção, isso viria de uma API
-  List<Map<String, dynamic>> chats = [
+  final List<Map<String, dynamic>> chats = [
     {
       'id': 1,
       'name': 'João Machado',
@@ -94,24 +96,41 @@ class _MainChatState extends State<MainChat> {
     },
   ];
 
-  List<Map<String, dynamic>> get filteredChats {
-    if (_searchQuery.isEmpty) {
-      return chats;
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    _currentUserId = await _chatService.getCurrentUserId();
+    if (_currentUserId != null) {
+      _chatService.updateUserPresence(_currentUserId!, true);
     }
-    return chats.where((chat) {
-      return chat['name'].toString().toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ) ||
-          chat['lastMessage'].toString().toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          );
-    }).toList();
+    setState(() {});
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    if (_currentUserId != null) {
+      _chatService.updateUserPresence(_currentUserId!, false);
+    }
     super.dispose();
+  }
+
+  List<Map<String, dynamic>> get filteredChats {
+    if (_searchQuery.isEmpty) {
+      return chats;
+    }
+    return chats.where((chatItem) {
+      return chatItem['name'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ||
+          chatItem['lastMessage'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
+    }).toList();
   }
 
   @override
@@ -221,8 +240,8 @@ class _MainChatState extends State<MainChat> {
                 : ListView.builder(
                     itemCount: filteredChats.length,
                     itemBuilder: (context, index) {
-                      final chat = filteredChats[index];
-                      return _buildChatTile(chat);
+                      final chatData = filteredChats[index];
+                      return _buildChatTile(chatData);
                     },
                   ),
           ),
@@ -241,7 +260,6 @@ class _MainChatState extends State<MainChat> {
   Widget _buildChatTile(Map<String, dynamic> chatData) {
     return InkWell(
       onTap: () {
-        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(
