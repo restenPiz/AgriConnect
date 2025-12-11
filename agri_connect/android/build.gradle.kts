@@ -1,18 +1,3 @@
-buildscript {
-    val kotlinVersion = "1.9.0"
-    
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath("com.android.tools.build:gradle:7.4.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("com.google.gms:google-services:4.4.0")
-    }
-}
-
 allprojects {
     repositories {
         google()
@@ -21,11 +6,11 @@ allprojects {
 }
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
-rootProject.layout.buildDirectory.set(newBuildDir)
+rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.set(newSubprojectBuildDir)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 
 subprojects {
