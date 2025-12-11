@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services") // Firebase plugin
 }
 
 android {
@@ -20,10 +21,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.agri_connect"
-        minSdk = flutter.minSdkVersion
+        minSdk = 21 // Firebase requer no mínimo 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true // Importante para Firebase
     }
 
     buildTypes {
@@ -38,5 +40,17 @@ flutter {
 }
 
 dependencies {
-    implementation("com.stripe:stripe-android:20.40.0") // versão estável do Stripe
+    // Stripe
+    implementation("com.stripe:stripe-android:20.40.0")
+    
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    
+    // MultiDex
+    implementation("androidx.multidex:multidex:2.0.1")
 }
