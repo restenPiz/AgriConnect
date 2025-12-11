@@ -1,15 +1,9 @@
 import 'package:agri_connect/Auth/welcome.dart';
 import 'package:agri_connect/Services/CartItem.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Inicializar Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => CartManager(),
