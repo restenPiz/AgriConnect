@@ -21,7 +21,7 @@ class _AddCooperativeScreenState extends State<AddCooperativeScreen> {
   String _selectedStatus = 'forming';
   bool _isLoading = false;
 
-  final String apiUrl = 'http://10.46.178.12:8000/api';
+  final String apiUrl = 'http://10.186.42.12:8000/api';
 
   final List<Map<String, String>> _types = [
     {'value': 'temporary', 'label': 'Temporária'},

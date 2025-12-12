@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.46.178.12:8000/api';
+  static const String baseUrl = 'http://10.186.42.12:8000/api';
   // static const String baseUrl = 'http://172.23.32.1:8000/api';
 
   // Singleton pattern
