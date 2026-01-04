@@ -234,7 +234,6 @@ class _ProfileState extends State<Profile> {
         ),
       ),
 
-      /// Bottom Navigation Bar
       bottomNavigationBar: AppBottomBuyer(currentIndex: widget.currentIndex),
     );
   }
