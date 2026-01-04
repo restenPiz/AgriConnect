@@ -1,6 +1,6 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
-import 'package:agri_connect/Layouts/AppBottom.dart';
+import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -134,76 +134,13 @@ class _ProfileState extends State<Profile> {
 
                   // Location
                   Text(
-                    'Agricultor • ${user['address'] ?? 'Endereço não definido'}',
+                    'Comprador • ${user['address'] ?? 'Endereço não definido'}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ...List.generate(5, (index) {
-                        return Icon(
-                          index < 4 ? Icons.star : Icons.star_half,
-                          color: Colors.amber,
-                          size: 20,
-                        );
-                      }),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '4.8 (47 avaliações)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Premium Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.amber.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.workspace_premium,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          'Vendedor Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -215,55 +152,6 @@ class _ProfileState extends State<Profile> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  _buildMenuCard(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'Meus Produtos',
-                    subtitle: '12 produtos ativos',
-                    color: Colors.orange,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const myProduct()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.wallet,
-                    title: 'Carteira',
-                    subtitle: 'Saldo: 13 750 MT',
-                    color: Colors.green,
-                    onTap: () {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Carteira')));
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.shopping_bag_outlined,
-                    title: 'Pedidos',
-                    subtitle: '8 pedidos pendentes',
-                    color: Colors.blue,
-                    onTap: () {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Pedidos')));
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.bar_chart,
-                    title: 'Estatísticas',
-                    subtitle: 'Ver desempenho',
-                    color: Colors.purple,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Estatísticas')),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
                   _buildMenuCard(
                     icon: Icons.settings,
                     title: 'Configurações',
@@ -346,52 +234,8 @@ class _ProfileState extends State<Profile> {
         ),
       ),
 
-      /// Floating Action Button
-      floatingActionButton: Container(
-        width: 65,
-        height: 65,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.green[400]!,
-              Colors.green[600]!,
-              Colors.green[800]!,
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Colors.green.withOpacity(0.2),
-              blurRadius: 25,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(32.5),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const addProduct()),
-              );
-            },
-            child: const Icon(Icons.add, color: Colors.white, size: 30),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
       /// Bottom Navigation Bar
-      bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
+      bottomNavigationBar: AppBottomBuyer(currentIndex: widget.currentIndex),
     );
   }
 
