@@ -5,15 +5,15 @@ import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class profile extends StatefulWidget {
+class Profile extends StatefulWidget {
   final int currentIndex;
-  const profile({super.key, this.currentIndex = 3});
+  const Profile({super.key, this.currentIndex = 3});
 
   @override
-  State<profile> createState() => _profileState();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _profileState extends State<profile> {
+class _ProfileState extends State<Profile> {
   dynamic user;
   int? userId;
 

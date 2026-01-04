@@ -4,8 +4,8 @@ import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
-import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:agri_connect/Buyer/Profile.dart';
 
 class AppBottomBuyer extends StatefulWidget {
   final int currentIndex;
@@ -27,7 +27,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
     _screens = [
       const Index(currentIndex: 0),
       const MainChat(currentIndex: 2),
-      const profile(),
+      const Profile(currentIndex: 3),
     ];
   }
 
