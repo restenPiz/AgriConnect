@@ -101,7 +101,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
                     Icons.person_outline,
                     Icons.person,
                     "Perfil",
-                    3,
+                    2,
                   ),
                 ],
               ),
