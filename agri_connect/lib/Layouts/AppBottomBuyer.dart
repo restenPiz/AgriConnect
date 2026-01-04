@@ -26,8 +26,8 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
     super.initState();
     _screens = [
       const Index(currentIndex: 0),
-      const MainChat(currentIndex: 2),
-      const Profile(currentIndex: 3),
+      const MainChat(),
+      const Profile(),
     ];
   }
 

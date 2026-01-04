@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   final int currentIndex;
-  const Profile({super.key, this.currentIndex = 3});
+  const Profile({super.key, this.currentIndex = 2});
 
   @override
   State<Profile> createState() => _ProfileState();
