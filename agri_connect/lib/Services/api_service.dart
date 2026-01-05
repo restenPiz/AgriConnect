@@ -195,7 +195,8 @@ class ApiService {
     }
   }
 
-  //Chat Methods
+  //??---------------------Chat Methods
+
   Future<String?> _getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token');
@@ -204,10 +205,12 @@ class ApiService {
   // Buscar agricultores
   Future<List<Map<String, dynamic>>> getFarmers({String search = ''}) async {
     try {
-      final headers = await _getHeaders();
-      final url = Uri.parse('$baseUrl/chat/farmers?search=$search');
-
-      final response = await http.get(url, headers: headers);
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/chat/farmers?search=$search'),
+            headers: _getHeaders(requiresAuth: true),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -227,10 +230,12 @@ class ApiService {
   // Buscar compradores
   Future<List<Map<String, dynamic>>> getBuyers({String search = ''}) async {
     try {
-      final headers = await _getHeaders();
-      final url = Uri.parse('$baseUrl/chat/buyers?search=$search');
-
-      final response = await http.get(url, headers: headers);
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/chat/buyers?search=$search'),
+            headers: _getHeaders(requiresAuth: true),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -250,10 +255,12 @@ class ApiService {
   // Obter detalhes do usuário
   Future<Map<String, dynamic>?> getUserDetails(String userId) async {
     try {
-      final headers = await _getHeaders();
-      final url = Uri.parse('$baseUrl/chat/user/$userId');
-
-      final response = await http.get(url, headers: headers);
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/chat/user/$userId'),
+            headers: _getHeaders(requiresAuth: true),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
