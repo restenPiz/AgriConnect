@@ -16,7 +16,7 @@ class _CooperativeMembersScreenState extends State<CooperativeMembersScreen> {
   List<Map<String, dynamic>> members = [];
   List<Map<String, dynamic>> availableFarmers = [];
   bool _isLoading = true;
-  final String apiUrl = 'http://10.85.220.12:8000/api';
+  final String apiUrl = 'http://10.47.58.12:8000/api';
 
   @override
   void initState() {
