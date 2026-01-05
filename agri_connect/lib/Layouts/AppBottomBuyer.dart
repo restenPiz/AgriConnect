@@ -1,7 +1,6 @@
 import 'package:agri_connect/Buyer/Index.dart';
 import 'package:agri_connect/Buyer/MainChat.dart';
 import 'package:agri_connect/Buyer/Order.dart';
-import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +78,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
+                  //Test comment
                   _buildBottomNavItem(
                     Icons.home_outlined,
                     Icons.home,
