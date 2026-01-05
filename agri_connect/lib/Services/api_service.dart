@@ -194,4 +194,96 @@ class ApiService {
       return {'success': false, 'message': 'Erro de conexão'};
     }
   }
+
+  //Chat Methods
+  Future<String?> _getAuthToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  // Buscar agricultores
+  Future<List<Map<String, dynamic>>> getFarmers({String search = ''}) async {
+    try {
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/chat/farmers?search=$search');
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          final data = jsonData['data']['data'] as List;
+          return data.map((e) => Map<String, dynamic>.from(e)).toList();
+        }
+      }
+
+      throw Exception('Erro ao buscar agricultores');
+    } catch (e) {
+      print('Erro na API: $e');
+      rethrow;
+    }
+  }
+
+  // Buscar compradores
+  Future<List<Map<String, dynamic>>> getBuyers({String search = ''}) async {
+    try {
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/chat/buyers?search=$search');
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          final data = jsonData['data']['data'] as List;
+          return data.map((e) => Map<String, dynamic>.from(e)).toList();
+        }
+      }
+
+      throw Exception('Erro ao buscar compradores');
+    } catch (e) {
+      print('Erro na API: $e');
+      rethrow;
+    }
+  }
+
+  // Obter detalhes do usuário
+  Future<Map<String, dynamic>?> getUserDetails(String userId) async {
+    try {
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/chat/user/$userId');
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          return Map<String, dynamic>.from(jsonData['data']);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print('Erro na API: $e');
+      return null;
+    }
+  }
+
+  // Obter ID do usuário atual
+  Future<String?> getCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_id');
+  }
+
+  // Salvar ID do usuário
+  Future<void> saveUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_id', userId);
+  }
+
+  // Salvar token de autenticação
+  Future<void> saveAuthToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+  }
 }

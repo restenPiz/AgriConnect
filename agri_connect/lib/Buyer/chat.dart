@@ -1,102 +1,77 @@
+import 'package:agri_connect/Services/FirebaseChatService.dart';
 import 'package:flutter/material.dart';
+import 'package:agri_connect/Services/api_service.dart';
+import 'package:intl/intl.dart';
 
-class chat extends StatefulWidget {
+class ChatScreen extends StatefulWidget {
   final int currentIndex;
+  final String userId;
   final String userName;
   final String userRole;
   final bool isOnline;
 
-  const chat({
+  const ChatScreen({
     super.key,
     this.currentIndex = 2,
-    this.userName = 'João Machado',
+    required this.userId,
+    this.userName = 'Usuário',
     this.userRole = 'Agricultor',
-    this.isOnline = true,
+    this.isOnline = false,
   });
 
   @override
-  State<chat> createState() => _chatState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _chatState extends State<chat> {
+class _ChatScreenState extends State<ChatScreen> {
+  final FirebaseChatService _chatService = FirebaseChatService();
+  final ApiService _apiService = ApiService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  List<Map<String, dynamic>> messages = [
-    {
-      'text': 'Olá! Tem tomates frescos disponíveis?',
-      'isSender': true,
-      'time': '9:30',
-      'date': 'Hoje',
-    },
-    {
-      'text': 'Bom dia! Sim, tenho tomates orgânicos. Quanto precisa?',
-      'isSender': false,
-      'time': '9:32',
-      'date': 'Hoje',
-    },
-    {
-      'text': 'Preciso de 50kg. Qual o preço?',
-      'isSender': true,
-      'time': '9:35',
-      'date': 'Hoje',
-    },
-    {
-      'text': 'Normal é 30 MT/kg. Para 50kg faço 28 MT/kg.',
-      'isSender': false,
-      'time': '9:37',
-      'date': 'Hoje',
-    },
-    {
-      'text': 'Perfeito! Pode entregar amanhã de manhã?',
-      'isSender': true,
-      'time': '9:40',
-      'date': 'Hoje',
-    },
-    {
-      'text':
-          'Sim! É para 50kg posso fazer desconto: 28 MT/kg. Total: 1 400 MT. Quando precisa?',
-      'isSender': false,
-      'time': '9:41',
-      'date': 'Hoje',
-    },
-    {
-      'text':
-          'Perfeito! Preciso para amanhã de manhã. Pode entregar? Ou prefere que eu busque?',
-      'isSender': true,
-      'time': '9:42',
-      'date': 'Hoje',
-    },
-    {
-      'text':
-          'Posso entregar sim! Onde fica seu restaurante? Cobramos apenas 50 MT de entrega na cidade.',
-      'isSender': false,
-      'time': '9:43',
-      'date': 'Hoje',
-    },
-    {
-      'text':
-          'Avenida Julius Nyerere, 123. Restaurante Sabor Tropical. Fechado então! ❤️',
-      'isSender': true,
-      'time': '9:44',
-      'date': 'Hoje',
-    },
-  ];
+  String? _currentUserId;
+  List<Map<String, dynamic>> _messages = [];
+  bool _isOnline = false;
+  bool _isLoading = true;
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
+  @override
+  void initState() {
+    super.initState();
+    _loadChat();
+    _listenToOnlineStatus();
+  }
 
-    setState(() {
-      messages.add({
-        'text': _messageController.text,
-        'isSender': true,
-        'time': TimeOfDay.now().format(context),
-        'date': 'Hoje',
+  Future<void> _loadChat() async {
+    _currentUserId = await _apiService.getCurrentUserId();
+
+    if (_currentUserId != null) {
+      // Marcar mensagens como lidas
+      await _chatService.markMessagesAsRead(_currentUserId!, widget.userId);
+
+      // Carregar mensagens
+      _chatService.getMessages(_currentUserId!, widget.userId).listen((
+        messages,
+      ) {
+        if (mounted) {
+          setState(() {
+            _messages = messages;
+            _isLoading = false;
+          });
+          _scrollToBottom();
+        }
       });
-      _messageController.clear();
-    });
+    }
+  }
 
-    // Scroll to bottom
+  void _listenToOnlineStatus() {
+    _chatService.getUserOnlineStatus(widget.userId).listen((isOnline) {
+      if (mounted) {
+        setState(() => _isOnline = isOnline);
+      }
+    });
+  }
+
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -106,30 +81,51 @@ class _chatState extends State<chat> {
         );
       }
     });
+  }
 
-    // Simulate response
-    Future.delayed(const Duration(seconds: 2), () {
+  Future<void> _sendMessage() async {
+    if (_messageController.text.trim().isEmpty || _currentUserId == null)
+      return;
+
+    final messageText = _messageController.text.trim();
+    _messageController.clear();
+
+    try {
+      await _chatService.sendMessage(
+        senderId: _currentUserId!,
+        receiverId: widget.userId,
+        message: messageText,
+      );
+      _scrollToBottom();
+    } catch (e) {
       if (mounted) {
-        setState(() {
-          messages.add({
-            'text': 'Obrigado pela mensagem! Vou responder em breve.',
-            'isSender': false,
-            'time': TimeOfDay.now().format(context),
-            'date': 'Hoje',
-          });
-        });
-
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao enviar mensagem: $e')));
       }
-    });
+    }
+  }
+
+  String _formatMessageTime(int? timestamp) {
+    if (timestamp == null) return '';
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return DateFormat('HH:mm').format(date);
+  }
+
+  String _formatMessageDate(int? timestamp) {
+    if (timestamp == null) return 'Hoje';
+
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return 'Hoje';
+    } else if (difference.inDays == 1) {
+      return 'Ontem';
+    } else {
+      return DateFormat('dd/MM/yyyy').format(date);
+    }
   }
 
   @override
@@ -144,9 +140,7 @@ class _chatState extends State<chat> {
           onPressed: () => Navigator.pop(context),
         ),
         title: InkWell(
-          onTap: () {
-            _showUserProfile(context);
-          },
+          onTap: () => _showUserProfile(context),
           child: Row(
             children: [
               Stack(
@@ -160,7 +154,7 @@ class _chatState extends State<chat> {
                       size: 22,
                     ),
                   ),
-                  if (widget.isOnline)
+                  if (_isOnline)
                     Positioned(
                       right: 0,
                       bottom: 0,
@@ -191,7 +185,7 @@ class _chatState extends State<chat> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      widget.isOnline
+                      _isOnline
                           ? '${widget.userRole} • Online'
                           : widget.userRole,
                       style: TextStyle(
@@ -210,10 +204,7 @@ class _chatState extends State<chat> {
             icon: const Icon(Icons.call),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Ligando para ${widget.userName}...'),
-                  duration: const Duration(seconds: 2),
-                ),
+                SnackBar(content: Text('Ligando para ${widget.userName}...')),
               );
             },
           ),
@@ -223,11 +214,6 @@ class _chatState extends State<chat> {
               switch (value) {
                 case 'view_profile':
                   _showUserProfile(context);
-                  break;
-                case 'mute':
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Conversa silenciada')),
-                  );
                   break;
                 case 'clear':
                   _clearChat();
@@ -245,16 +231,6 @@ class _chatState extends State<chat> {
                     Icon(Icons.person, size: 20),
                     SizedBox(width: 12),
                     Text('Ver perfil'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'mute',
-                child: Row(
-                  children: [
-                    Icon(Icons.notifications_off, size: 20),
-                    SizedBox(width: 12),
-                    Text('Silenciar'),
                   ],
                 ),
               ),
@@ -285,119 +261,56 @@ class _chatState extends State<chat> {
       backgroundColor: const Color(0xFFECE5DD),
       body: Column(
         children: [
-          // Messages list
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(12.0),
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-
-                // Show date divider
-                bool showDate = false;
-                if (index == 0) {
-                  showDate = true;
-                } else if (messages[index - 1]['date'] != message['date']) {
-                  showDate = true;
-                }
-
-                return Column(
-                  children: [
-                    if (showDate) _buildDateDivider(message['date']),
-                    _buildMessageBubble(
-                      message['text'],
-                      message['isSender'],
-                      message['time'],
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _messages.isEmpty
+                ? Center(
+                    child: Text(
+                      'Nenhuma mensagem ainda.\nInicie a conversa!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
-                  ],
-                );
-              },
-            ),
-          ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(12.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      final isSender = message['senderId'] == _currentUserId;
 
-          // Message input field
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.grey[300]!, width: 1),
-                      ),
-                      child: Row(
+                      bool showDate = false;
+                      if (index == 0) {
+                        showDate = true;
+                      } else {
+                        final prevDate = _formatMessageDate(
+                          _messages[index - 1]['timestamp'],
+                        );
+                        final currDate = _formatMessageDate(
+                          message['timestamp'],
+                        );
+                        if (prevDate != currDate) showDate = true;
+                      }
+
+                      return Column(
                         children: [
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              controller: _messageController,
-                              decoration: const InputDecoration(
-                                hintText: 'Digite sua mensagem...',
-                                border: InputBorder.none,
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              maxLines: null,
-                              textCapitalization: TextCapitalization.sentences,
-                              onSubmitted: (_) => _sendMessage(),
+                          if (showDate)
+                            _buildDateDivider(
+                              _formatMessageDate(message['timestamp']),
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.attach_file,
-                              color: Colors.grey[600],
-                              size: 22,
-                            ),
-                            onPressed: () {
-                              _showAttachmentOptions(context);
-                            },
+                          _buildMessageBubble(
+                            message['message'],
+                            isSender,
+                            _formatMessageTime(message['timestamp']),
+                            message['isRead'] ?? false,
                           ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF25D366),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF25D366).withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      onPressed: _sendMessage,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
+          _buildMessageInput(),
         ],
       ),
     );
@@ -429,7 +342,12 @@ class _chatState extends State<chat> {
     );
   }
 
-  Widget _buildMessageBubble(String text, bool isSender, String time) {
+  Widget _buildMessageBubble(
+    String text,
+    bool isSender,
+    String time,
+    bool isRead,
+  ) {
     return Align(
       alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -485,12 +403,92 @@ class _chatState extends State<chat> {
                 if (isSender) ...[
                   const SizedBox(width: 4),
                   Icon(
-                    Icons.done_all,
+                    isRead ? Icons.done_all : Icons.done,
                     size: 14,
-                    color: Colors.white.withOpacity(0.8),
+                    color: isRead
+                        ? Colors.blue[300]
+                        : Colors.white.withOpacity(0.8),
                   ),
                 ],
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          hintText: 'Digite sua mensagem...',
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.attach_file,
+                        color: Colors.grey[600],
+                        size: 22,
+                      ),
+                      onPressed: () => _showAttachmentOptions(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF25D366),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF25D366).withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send, color: Colors.white, size: 22),
+                onPressed: _sendMessage,
+              ),
             ),
           ],
         ),
@@ -573,22 +571,8 @@ class _chatState extends State<chat> {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Selecionar imagem')),
+                  const SnackBar(content: Text('Em desenvolvimento')),
                 );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.videocam, color: Colors.red),
-              title: const Text('Vídeo'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.attach_file, color: Colors.blue),
-              title: const Text('Documento'),
-              onTap: () {
-                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -596,6 +580,9 @@ class _chatState extends State<chat> {
               title: const Text('Localização'),
               onTap: () {
                 Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Em desenvolvimento')),
+                );
               },
             ),
           ],
@@ -604,29 +591,41 @@ class _chatState extends State<chat> {
     );
   }
 
-  void _clearChat() {
-    showDialog(
+  Future<void> _clearChat() async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Limpar conversa'),
         content: const Text('Deseja limpar todas as mensagens?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                messages.clear();
-              });
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Limpar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+
+    if (confirmed == true && _currentUserId != null) {
+      try {
+        await _chatService.clearChatHistory(_currentUserId!, widget.userId);
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Conversa limpa')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Erro: $e')));
+        }
+      }
+    }
   }
 
   void _blockUser(BuildContext context) {

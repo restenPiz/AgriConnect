@@ -1,6 +1,9 @@
-import 'package:agri_connect/Services/ChatService.dart';
+import 'package:agri_connect/Buyer/chat.dart';
+import 'package:agri_connect/Services/FirebaseChatService.dart';
 import 'package:flutter/material.dart';
+import 'package:agri_connect/Services/api_service.dart';
 import 'package:agri_connect/Farmer/chat.dart';
+import 'package:intl/intl.dart';
 
 class MainChat extends StatefulWidget {
   final int currentIndex;
@@ -10,108 +13,27 @@ class MainChat extends StatefulWidget {
   State<MainChat> createState() => _MainChatState();
 }
 
-class _MainChatState extends State<MainChat> {
-  final ChatService _chatService = ChatService();
+class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
+  final FirebaseChatService _chatService = FirebaseChatService();
+  final ApiService _apiService = ApiService();
   final TextEditingController _searchController = TextEditingController();
+
   String _searchQuery = '';
   String? _currentUserId;
-
-  final List<Map<String, dynamic>> chats = [
-    {
-      'id': 1,
-      'name': 'João Machado',
-      'role': 'Agricultor',
-      'lastMessage': 'Posso entregar sim! Onde fica seu restaurante?',
-      'time': '9:43',
-      'unreadCount': 2,
-      'isOnline': true,
-      'avatar': 'JM',
-      'avatarColor': Colors.green,
-    },
-    {
-      'id': 2,
-      'name': 'Maria Santos',
-      'role': 'Compradora',
-      'lastMessage': 'Obrigada! Recebi os tomates hoje.',
-      'time': '8:15',
-      'unreadCount': 0,
-      'isOnline': false,
-      'avatar': 'MS',
-      'avatarColor': Colors.blue,
-    },
-    {
-      'id': 3,
-      'name': 'Carlos Pereira',
-      'role': 'Agricultor',
-      'lastMessage': 'Tenho alface fresca disponível. Quer?',
-      'time': 'Ontem',
-      'unreadCount': 1,
-      'isOnline': true,
-      'avatar': 'CP',
-      'avatarColor': Colors.orange,
-    },
-    {
-      'id': 4,
-      'name': 'Ana Costa',
-      'role': 'Compradora',
-      'lastMessage': 'Posso passar amanhã para buscar.',
-      'time': 'Ontem',
-      'unreadCount': 0,
-      'isOnline': false,
-      'avatar': 'AC',
-      'avatarColor': Colors.purple,
-    },
-    {
-      'id': 5,
-      'name': 'Pedro Lopes',
-      'role': 'Agricultor',
-      'lastMessage': 'Sim, tenho cenouras orgânicas.',
-      'time': 'Ter',
-      'unreadCount': 0,
-      'isOnline': true,
-      'avatar': 'PL',
-      'avatarColor': Colors.teal,
-    },
-    {
-      'id': 6,
-      'name': 'Beatriz Silva',
-      'role': 'Compradora',
-      'lastMessage': 'Quanto custa o quilo de batata?',
-      'time': 'Seg',
-      'unreadCount': 3,
-      'isOnline': false,
-      'avatar': 'BS',
-      'avatarColor': Colors.pink,
-    },
-    {
-      'id': 7,
-      'name': 'Ricardo Alves',
-      'role': 'Agricultor',
-      'lastMessage': 'Fechado! Entrego amanhã cedo.',
-      'time': 'Dom',
-      'unreadCount': 0,
-      'isOnline': false,
-      'avatar': 'RA',
-      'avatarColor': Colors.indigo,
-    },
-  ];
+  List<Map<String, dynamic>> _conversations = [];
+  Map<String, Map<String, dynamic>> _userCache = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadCurrentUser();
-  }
-
-  Future<void> _loadCurrentUser() async {
-    _currentUserId = await _chatService.getCurrentUserId();
-    if (_currentUserId != null) {
-      _chatService.updateUserPresence(_currentUserId!, true);
-    }
-    setState(() {});
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     if (_currentUserId != null) {
       _chatService.updateUserPresence(_currentUserId!, false);
@@ -119,18 +41,116 @@ class _MainChatState extends State<MainChat> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get filteredChats {
-    if (_searchQuery.isEmpty) {
-      return chats;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_currentUserId != null) {
+      if (state == AppLifecycleState.resumed) {
+        _chatService.updateUserPresence(_currentUserId!, true);
+      } else if (state == AppLifecycleState.paused) {
+        _chatService.updateUserPresence(_currentUserId!, false);
+      }
     }
-    return chats.where((chatItem) {
-      return chatItem['name'].toString().toLowerCase().contains(
+  }
+
+  Future<void> _loadCurrentUser() async {
+    _currentUserId = await _apiService.getCurrentUserId();
+    if (_currentUserId != null) {
+      _chatService.updateUserPresence(_currentUserId!, true);
+      _loadConversations();
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _loadConversations() {
+    _chatService.getConversations(_currentUserId!).listen((
+      conversations,
+    ) async {
+      List<Map<String, dynamic>> enrichedConversations = [];
+
+      for (var conv in conversations) {
+        String otherUserId = _getOtherUserId(conv);
+
+        // Cache de usuários
+        if (!_userCache.containsKey(otherUserId)) {
+          final userDetails = await _apiService.getUserDetails(otherUserId);
+          if (userDetails != null) {
+            _userCache[otherUserId] = userDetails;
+          }
+        }
+
+        if (_userCache.containsKey(otherUserId)) {
+          final user = _userCache[otherUserId]!;
+          enrichedConversations.add({
+            ...conv,
+            'otherUserId': otherUserId,
+            'name': user['name'] ?? 'Usuário',
+            'role': _getUserRole(user['user_type']),
+            'profileImage': user['profile_image_url'],
+            'location': user['location'],
+          });
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _conversations = enrichedConversations;
+          _isLoading = false;
+        });
+      }
+    });
+  }
+
+  String _getOtherUserId(Map<String, dynamic> conversation) {
+    Map participants = conversation['participants'] ?? {};
+    for (String userId in participants.keys) {
+      if (userId != _currentUserId) return userId;
+    }
+    return '';
+  }
+
+  String _getUserRole(String? userType) {
+    switch (userType) {
+      case 'farmer':
+        return 'Agricultor';
+      case 'buyer':
+        return 'Comprador';
+      case 'transporter':
+        return 'Transportador';
+      default:
+        return 'Usuário';
+    }
+  }
+
+  List<Map<String, dynamic>> get filteredConversations {
+    if (_searchQuery.isEmpty) return _conversations;
+
+    return _conversations.where((conv) {
+      return conv['name'].toString().toLowerCase().contains(
             _searchQuery.toLowerCase(),
           ) ||
-          chatItem['lastMessage'].toString().toLowerCase().contains(
+          conv['lastMessage'].toString().toLowerCase().contains(
             _searchQuery.toLowerCase(),
           );
     }).toList();
+  }
+
+  String _formatTimestamp(int? timestamp) {
+    if (timestamp == null) return '';
+
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return DateFormat('HH:mm').format(date);
+    } else if (difference.inDays == 1) {
+      return 'Ontem';
+    } else if (difference.inDays < 7) {
+      return DateFormat('EEEE', 'pt_BR').format(date);
+    } else {
+      return DateFormat('dd/MM').format(date);
+    }
   }
 
   @override
@@ -147,32 +167,20 @@ class _MainChatState extends State<MainChat> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Toggle search bar
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              _showOptionsMenu(context);
-            },
+            onPressed: () => _showOptionsMenu(context),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Search bar
+          // Barra de pesquisa
           Container(
             padding: const EdgeInsets.all(12),
             color: const Color(0xFF2E7D32),
             child: TextField(
               controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
+              onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
                 hintText: 'Pesquisar conversas...',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
@@ -201,71 +209,83 @@ class _MainChatState extends State<MainChat> {
             ),
           ),
 
-          // Chats list
+          // Lista de conversas
           Expanded(
-            child: filteredChats.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 80,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isEmpty
-                              ? 'Nenhuma conversa ainda'
-                              : 'Nenhum resultado encontrado',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _searchQuery.isEmpty
-                              ? 'Comece uma conversa com um agricultor ou comprador'
-                              : 'Tente pesquisar com outros termos',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  )
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredConversations.isEmpty
+                ? _buildEmptyState()
                 : ListView.builder(
-                    itemCount: filteredChats.length,
+                    itemCount: filteredConversations.length,
                     itemBuilder: (context, index) {
-                      final chatData = filteredChats[index];
-                      return _buildChatTile(chatData);
+                      final conv = filteredConversations[index];
+                      return _buildChatTile(conv);
                     },
                   ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showNewChatDialog(context);
-        },
+        onPressed: () => _showNewChatDialog(context),
         backgroundColor: const Color(0xFF25D366),
         child: const Icon(Icons.message, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildChatTile(Map<String, dynamic> chatData) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => chat(currentIndex: widget.currentIndex),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            _searchQuery.isEmpty
+                ? 'Nenhuma conversa ainda'
+                : 'Nenhum resultado encontrado',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
+          const SizedBox(height: 8),
+          Text(
+            _searchQuery.isEmpty
+                ? 'Comece uma conversa com um agricultor'
+                : 'Tente pesquisar com outros termos',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatTile(Map<String, dynamic> conv) {
+    final unreadCount = (conv['unreadCount']?[_currentUserId] ?? 0) as int;
+    final isOnline = conv['isOnline'] ?? false;
+
+    return InkWell(
+      onTap: () async {
+        // Marcar como lido
+        await _chatService.markMessagesAsRead(
+          _currentUserId!,
+          conv['otherUserId'],
         );
+
+        // Navegar para o chat
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChatScreen(
+                currentIndex: widget.currentIndex,
+                userId: conv['otherUserId'],
+                userName: conv['name'],
+                userRole: conv['role'],
+                isOnline: isOnline,
+              ),
+            ),
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -278,22 +298,26 @@ class _MainChatState extends State<MainChat> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              // Avatar
               Stack(
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: chatData['avatarColor'],
-                    child: Text(
-                      chatData['avatar'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    backgroundColor: Colors.green,
+                    backgroundImage: conv['profileImage'] != null
+                        ? NetworkImage(conv['profileImage'])
+                        : null,
+                    child: conv['profileImage'] == null
+                        ? Text(
+                            conv['name'][0].toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
                   ),
-                  if (chatData['isOnline'])
+                  if (isOnline)
                     Positioned(
                       right: 0,
                       bottom: 0,
@@ -310,8 +334,6 @@ class _MainChatState extends State<MainChat> {
                 ],
               ),
               const SizedBox(width: 12),
-
-              // Chat info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,10 +343,10 @@ class _MainChatState extends State<MainChat> {
                       children: [
                         Expanded(
                           child: Text(
-                            chatData['name'],
+                            conv['name'],
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: chatData['unreadCount'] > 0
+                              fontWeight: unreadCount > 0
                                   ? FontWeight.bold
                                   : FontWeight.w600,
                               color: Colors.black87,
@@ -334,13 +356,13 @@ class _MainChatState extends State<MainChat> {
                           ),
                         ),
                         Text(
-                          chatData['time'],
+                          _formatTimestamp(conv['lastMessageTime']),
                           style: TextStyle(
                             fontSize: 12,
-                            color: chatData['unreadCount'] > 0
+                            color: unreadCount > 0
                                 ? const Color(0xFF25D366)
                                 : Colors.grey[600],
-                            fontWeight: chatData['unreadCount'] > 0
+                            fontWeight: unreadCount > 0
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
@@ -348,40 +370,36 @@ class _MainChatState extends State<MainChat> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            chatData['role'],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        conv['role'],
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         Expanded(
                           child: Text(
-                            chatData['lastMessage'],
+                            conv['lastMessage'] ?? '',
                             style: TextStyle(
                               fontSize: 14,
-                              color: chatData['unreadCount'] > 0
+                              color: unreadCount > 0
                                   ? Colors.black87
                                   : Colors.grey[600],
-                              fontWeight: chatData['unreadCount'] > 0
+                              fontWeight: unreadCount > 0
                                   ? FontWeight.w500
                                   : FontWeight.normal,
                             ),
@@ -389,7 +407,7 @@ class _MainChatState extends State<MainChat> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (chatData['unreadCount'] > 0) ...[
+                        if (unreadCount > 0) ...[
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.all(6),
@@ -398,7 +416,7 @@ class _MainChatState extends State<MainChat> {
                               shape: BoxShape.circle,
                             ),
                             child: Text(
-                              '${chatData['unreadCount']}',
+                              '$unreadCount',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -431,31 +449,9 @@ class _MainChatState extends State<MainChat> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.archive, color: Colors.grey),
-              title: const Text('Conversas arquivadas'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Conversas arquivadas')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.star_border, color: Colors.grey),
-              title: const Text('Conversas favoritas'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Conversas favoritas')),
-                );
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.settings, color: Colors.grey),
               title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),
@@ -470,86 +466,171 @@ class _MainChatState extends State<MainChat> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2E7D32),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.message, color: Colors.white),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Nova Conversa',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+      builder: (context) => FarmersListSheet(
+        currentUserId: _currentUserId!,
+        currentIndex: widget.currentIndex,
+      ),
+    );
+  }
+}
+
+// Widget separado para lista de agricultores
+class FarmersListSheet extends StatefulWidget {
+  final String currentUserId;
+  final int currentIndex;
+
+  const FarmersListSheet({
+    super.key,
+    required this.currentUserId,
+    required this.currentIndex,
+  });
+
+  @override
+  State<FarmersListSheet> createState() => _FarmersListSheetState();
+}
+
+class _FarmersListSheetState extends State<FarmersListSheet> {
+  final ApiService _apiService = ApiService();
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _farmers = [];
+  bool _isLoading = true;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFarmers();
+  }
+
+  Future<void> _loadFarmers() async {
+    try {
+      final farmers = await _apiService.getFarmers(search: _searchQuery);
+      if (mounted) {
+        setState(() {
+          _farmers = farmers;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar agricultores: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) => Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2E7D32),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.message, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Nova Conversa',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Pesquisar contatos...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() => _searchQuery = value);
+                _loadFarmers();
+              },
+              decoration: InputDecoration(
+                hintText: 'Pesquisar agricultores...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
                 ),
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          Colors.primaries[index % Colors.primaries.length],
-                      child: Text(
-                        'U${index + 1}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    title: Text('Usuário ${index + 1}'),
-                    subtitle: const Text('Agricultor'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              chat(currentIndex: widget.currentIndex),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _farmers.isEmpty
+                ? const Center(child: Text('Nenhum agricultor encontrado'))
+                : ListView.builder(
+                    controller: scrollController,
+                    itemCount: _farmers.length,
+                    itemBuilder: (context, index) {
+                      final farmer = _farmers[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.green,
+                          backgroundImage: farmer['profile_image_url'] != null
+                              ? NetworkImage(farmer['profile_image_url'])
+                              : null,
+                          child: farmer['profile_image_url'] == null
+                              ? Text(
+                                  farmer['name'][0].toUpperCase(),
+                                  style: const TextStyle(color: Colors.white),
+                                )
+                              : null,
                         ),
+                        title: Text(farmer['name']),
+                        subtitle: Text(farmer['location'] ?? 'Agricultor'),
+                        trailing: farmer['rating'] != null
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 16,
+                                  ),
+                                  Text('${farmer['rating']}'),
+                                ],
+                              )
+                            : null,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                currentIndex: widget.currentIndex,
+                                userId: farmer['id'].toString(),
+                                userName: farmer['name'],
+                                userRole: 'Agricultor',
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                  ),
+          ),
+        ],
       ),
     );
   }
