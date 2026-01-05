@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
+      //Title
       title: 'AgriConnect',
       home: MyHomePage(title: 'AgriConnect'),
     );
