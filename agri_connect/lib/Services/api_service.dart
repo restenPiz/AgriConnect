@@ -277,8 +277,13 @@ class ApiService {
   }
 
   // Obter ID do usuário atual
+  // Obter ID do usuário atual (compatível com int ou string armazenados)
   Future<String?> getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();
+    // If stored as int (older code), return its string form
+    final int? intId = prefs.getInt('user_id');
+    if (intId != null) return intId.toString();
+    // Otherwise try string
     return prefs.getString('user_id');
   }
 
