@@ -265,11 +265,13 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showNewChatDialog(context),
-        backgroundColor: const Color(0xFF25D366),
-        child: const Icon(Icons.message, color: Colors.white),
-      ),
+      floatingActionButton: _currentUserId != null
+          ? FloatingActionButton(
+              onPressed: () => _showNewChatDialog(context),
+              backgroundColor: const Color(0xFF25D366),
+              child: const Icon(Icons.message, color: Colors.white),
+            )
+          : null,
     );
   }
 
@@ -500,6 +502,12 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
   }
 
   void _showNewChatDialog(BuildContext context) {
+    if (_currentUserId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Usuário não autenticado')));
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
