@@ -53,52 +53,92 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
   }
 
   Future<void> _loadCurrentUser() async {
-    _currentUserId = await _apiService.getCurrentUserId();
-    if (_currentUserId != null) {
-      _chatService.updateUserPresence(_currentUserId!, true);
-      _loadConversations();
-    } else {
+    try {
+      _currentUserId = await _apiService.getCurrentUserId();
+      print('Current User ID: $_currentUserId'); // Debug
+      if (_currentUserId != null) {
+        _chatService.updateUserPresence(_currentUserId!, true);
+        _loadConversations();
+      } else {
+        print('No current user ID found'); // Debug
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print('Error loading current user: $e'); // Debug
       setState(() => _isLoading = false);
     }
   }
 
   void _loadConversations() {
-    _chatService.getConversations(_currentUserId!).listen((
-      conversations,
-    ) async {
-      List<Map<String, dynamic>> enrichedConversations = [];
+    print('Loading conversations for user: $_currentUserId'); // Debug
+    _chatService
+        .getConversations(_currentUserId!)
+        .listen(
+          (conversations) async {
+            print('Received conversations: ${conversations.length}'); // Debug
+            List<Map<String, dynamic>> enrichedConversations = [];
 
-      for (var conv in conversations) {
-        String otherUserId = _getOtherUserId(conv);
+            for (var conv in conversations) {
+              String otherUserId = _getOtherUserId(conv);
+              print(
+                'Processing conversation with other user: $otherUserId',
+              ); // Debug
 
-        // Cache de usuários
-        if (!_userCache.containsKey(otherUserId)) {
-          final userDetails = await _apiService.getUserDetails(otherUserId);
-          if (userDetails != null) {
-            _userCache[otherUserId] = userDetails;
-          }
-        }
+              // Cache de usuários
+              if (!_userCache.containsKey(otherUserId)) {
+                try {
+                  final userDetails = await _apiService.getUserDetails(
+                    otherUserId,
+                  );
+                  if (userDetails != null) {
+                    _userCache[otherUserId] = userDetails;
+                    print('Cached user details for $otherUserId'); // Debug
+                  } else {
+                    print('No user details for $otherUserId'); // Debug
+                  }
+                } catch (e) {
+                  print(
+                    'Error fetching user details for $otherUserId: $e',
+                  ); // Debug
+                }
+              }
 
-        if (_userCache.containsKey(otherUserId)) {
-          final user = _userCache[otherUserId]!;
-          enrichedConversations.add({
-            ...conv,
-            'otherUserId': otherUserId,
-            'name': user['name'] ?? 'Usuário',
-            'role': _getUserRole(user['user_type']),
-            'profileImage': user['profile_image_url'],
-            'location': user['location'],
-          });
-        }
-      }
+              if (_userCache.containsKey(otherUserId)) {
+                final user = _userCache[otherUserId]!;
+                enrichedConversations.add({
+                  ...conv,
+                  'otherUserId': otherUserId,
+                  'name': user['name'] ?? 'Usuário',
+                  'role': _getUserRole(user['user_type']),
+                  'profileImage': user['profile_image_url'],
+                  'location': user['location'],
+                });
+              }
+            }
 
-      if (mounted) {
-        setState(() {
-          _conversations = enrichedConversations;
-          _isLoading = false;
-        });
-      }
-    });
+            print(
+              'Enriched conversations: ${enrichedConversations.length}',
+            ); // Debug
+            if (mounted) {
+              setState(() {
+                _conversations = enrichedConversations;
+                _isLoading = false;
+              });
+            }
+          },
+          onError: (error) {
+            print('Error in conversations stream: $error'); // Debug
+            if (mounted) {
+              setState(() => _isLoading = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erro ao carregar conversas: $error')),
+              );
+            }
+          },
+          onDone: () {
+            print('Conversations stream done'); // Debug
+          },
+        );
   }
 
   String _getOtherUserId(Map<String, dynamic> conversation) {
