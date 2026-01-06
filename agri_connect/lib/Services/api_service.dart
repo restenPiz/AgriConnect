@@ -195,7 +195,7 @@ class ApiService {
     }
   }
 
-  //??---------------------Chat Methods
+  //??------Chat Methods
 
   Future<String?> _getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
