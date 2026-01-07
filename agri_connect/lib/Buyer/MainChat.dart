@@ -71,6 +71,7 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
 
   void _loadConversations() {
     print('Loading conversations for user: $_currentUserId'); // Debug
+
     _chatService
         .getConversations(_currentUserId!)
         .listen(

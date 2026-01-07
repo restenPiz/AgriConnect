@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "12920504952",
+    "firebase_url": "https://agri-connect-36d65-default-rtdb.firebaseio.com",
     "project_id": "agri-connect-36d65",
     "storage_bucket": "agri-connect-36d65.firebasestorage.app"
   },
