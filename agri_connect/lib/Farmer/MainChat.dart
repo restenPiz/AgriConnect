@@ -669,7 +669,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
                                 currentIndex: widget.currentIndex,
                                 userId: farmer['id'].toString(),
                                 userName: farmer['name'],
-                                userRole: 'Agricultor',
+                                userRole: 'Comprador',
                               ),
                             ),
                           );
