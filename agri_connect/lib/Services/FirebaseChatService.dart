@@ -134,50 +134,77 @@ class FirebaseChatService {
   Stream<List<Map<String, dynamic>>> getConversations(String userId) {
     debugPrint('🔍 Buscando conversas para userId: $userId');
 
-    return _database
-        .child('conversations')
-        .orderByChild('lastMessageTime')
-        .onValue
-        .map((event) {
-          if (event.snapshot.value == null) {
-            debugPrint('📭 Nenhuma conversa encontrada no Firebase');
-            return [];
+    return _database.child('conversations').orderByChild('lastMessageTime').onValue.map((
+      event,
+    ) {
+      if (event.snapshot.value == null) {
+        debugPrint('📭 Nenhuma conversa encontrada no Firebase');
+        return [];
+      }
+
+      // Verificar o tipo de dado retornado
+      final rawValue = event.snapshot.value;
+      debugPrint('🔍 Tipo de dado recebido: ${rawValue.runtimeType}');
+      debugPrint('🔍 Valor bruto: $rawValue');
+
+      // Se não for um Map, retornar lista vazia
+      if (rawValue is! Map) {
+        debugPrint('⚠️ Dados inválidos no Firebase (não é um Map): $rawValue');
+        return [];
+      }
+
+      Map<dynamic, dynamic> conversations = rawValue as Map;
+      List<Map<String, dynamic>> conversationList = [];
+
+      conversations.forEach((key, value) {
+        try {
+          // Ignorar valores que não são Map
+          if (value is! Map) {
+            debugPrint(
+              '⚠️ Valor inválido na conversa $key: ${value.runtimeType} - $value',
+            );
+            return;
           }
 
-          Map<dynamic, dynamic> conversations = event.snapshot.value as Map;
-          List<Map<String, dynamic>> conversationList = [];
+          Map<String, dynamic> conversation = Map<String, dynamic>.from(value);
 
-          conversations.forEach((key, value) {
-            try {
-              Map<String, dynamic> conversation = Map<String, dynamic>.from(
-                value,
+          // Verificar se o usuário é participante
+          dynamic participantsData = conversation['participants'];
+
+          if (participantsData is Map) {
+            Map<dynamic, dynamic> participants = participantsData;
+            if (participants.containsKey(userId)) {
+              conversation['key'] = key;
+              conversationList.add(conversation);
+              debugPrint('✅ Conversa $key adicionada');
+            } else {
+              debugPrint(
+                '⏭️ Conversa $key ignorada (usuário não é participante)',
               );
-
-              // Verificar se o usuário é participante
-              Map<dynamic, dynamic>? participants =
-                  conversation['participants'];
-              if (participants != null && participants.containsKey(userId)) {
-                conversation['key'] = key;
-                conversationList.add(conversation);
-                debugPrint('✅ Conversa $key adicionada');
-              }
-            } catch (e) {
-              debugPrint('⚠️ Erro ao processar conversa $key: $e');
             }
-          });
+          } else {
+            debugPrint(
+              '⚠️ Conversa $key sem participants válido: ${participantsData?.runtimeType}',
+            );
+          }
+        } catch (e, stackTrace) {
+          debugPrint('❌ Erro ao processar conversa $key: $e');
+          debugPrint('Stack trace: $stackTrace');
+        }
+      });
 
-          // Ordenar por última mensagem (mais recente primeiro)
-          conversationList.sort((a, b) {
-            int timeA = a['lastMessageTime'] ?? 0;
-            int timeB = b['lastMessageTime'] ?? 0;
-            return timeB.compareTo(timeA);
-          });
+      // Ordenar por última mensagem (mais recente primeiro)
+      conversationList.sort((a, b) {
+        int timeA = a['lastMessageTime'] ?? 0;
+        int timeB = b['lastMessageTime'] ?? 0;
+        return timeB.compareTo(timeA);
+      });
 
-          debugPrint(
-            '📬 ${conversationList.length} conversas encontradas para $userId',
-          );
-          return conversationList;
-        });
+      debugPrint(
+        '📬 ${conversationList.length} conversas válidas encontradas para $userId',
+      );
+      return conversationList;
+    });
   }
 
   // Marcar mensagens como lidas
