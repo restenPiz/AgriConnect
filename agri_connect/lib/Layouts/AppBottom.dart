@@ -1,5 +1,6 @@
 import 'package:agri_connect/Buyer/Index.dart';
 import 'package:agri_connect/Buyer/Order.dart';
+import 'package:agri_connect/Farmer/MainChat.dart';
 import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
@@ -26,7 +27,7 @@ class _AppbottomState extends State<Appbottom> {
     _screens = [
       const index(currentIndex: 0),
       const myProduct(),
-      const chat(),
+      const MainChat(),
       const profile(),
     ];
   }

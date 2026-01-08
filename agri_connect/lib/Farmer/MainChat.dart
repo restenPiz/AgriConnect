@@ -1,4 +1,3 @@
-import 'package:agri_connect/Buyer/chat.dart';
 import 'package:agri_connect/Services/FirebaseChatService.dart';
 import 'package:flutter/material.dart';
 import 'package:agri_connect/Services/api_service.dart';
@@ -319,7 +318,7 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ChatScreen(
+              builder: (_) => Chat(
                 currentIndex: widget.currentIndex,
                 userId: conv['otherUserId'],
                 userName: conv['name'],
@@ -666,7 +665,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ChatScreen(
+                              builder: (_) => Chat(
                                 currentIndex: widget.currentIndex,
                                 userId: farmer['id'].toString(),
                                 userName: farmer['name'],
