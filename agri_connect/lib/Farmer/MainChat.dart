@@ -552,7 +552,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
 
   Future<void> _loadFarmers() async {
     try {
-      final farmers = await _apiService.getFarmers(search: _searchQuery);
+      final farmers = await _apiService.getBuyers(search: _searchQuery);
       if (mounted) {
         setState(() {
           _farmers = farmers;
@@ -563,7 +563,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar agricultores: $e')),
+          SnackBar(content: Text('Erro ao carregar compradores: $e')),
         );
       }
     }
@@ -614,7 +614,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
                 _loadFarmers();
               },
               decoration: InputDecoration(
-                hintText: 'Pesquisar agricultores...',
+                hintText: 'Pesquisar compradores...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -626,7 +626,7 @@ class _FarmersListSheetState extends State<FarmersListSheet> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _farmers.isEmpty
-                ? const Center(child: Text('Nenhum agricultor encontrado'))
+                ? const Center(child: Text('Nenhum comprador encontrado'))
                 : ListView.builder(
                     controller: scrollController,
                     itemCount: _farmers.length,
