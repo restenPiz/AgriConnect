@@ -44,7 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _loadChat();
     _listenToOnlineStatus();
 
-    // Se houver um produto, enviar mensagem automática
     if (widget.productId != null && widget.productName != null) {
       Future.delayed(const Duration(milliseconds: 500), () {
         _messageController.text =
@@ -57,7 +56,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _currentUserId = await _apiService.getCurrentUserId();
 
     if (_currentUserId != null) {
-      // Marcar mensagens como lidas
       await _chatService.markMessagesAsRead(_currentUserId!, widget.userId);
 
       // Carregar mensagens
