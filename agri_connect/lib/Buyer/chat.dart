@@ -9,6 +9,8 @@ class ChatScreen extends StatefulWidget {
   final String userName;
   final String userRole;
   final bool isOnline;
+  final int? productId; // Novo
+  final String? productName; // Novo
 
   const ChatScreen({
     super.key,
@@ -17,6 +19,8 @@ class ChatScreen extends StatefulWidget {
     this.userName = 'Usuário',
     this.userRole = 'Agricultor',
     this.isOnline = false,
+    this.productId, // Novo
+    this.productName,
   });
 
   @override
@@ -39,6 +43,14 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _loadChat();
     _listenToOnlineStatus();
+
+    // Se houver um produto, enviar mensagem automática
+    if (widget.productId != null && widget.productName != null) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _messageController.text =
+            'Olá! Tenho interesse no produto: ${widget.productName}';
+      });
+    }
   }
 
   Future<void> _loadChat() async {

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Buyer/ProductDetails.dart';
+import 'package:agri_connect/Buyer/chat.dart';
 import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
+import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -432,20 +434,89 @@ class _IndexState extends State<Index> {
                                             children: [
                                               Expanded(
                                                 child: OutlinedButton.icon(
-                                                  onPressed: () {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'Chat com vendedor de ${product['name']}',
-                                                        ),
-                                                        duration:
-                                                            const Duration(
-                                                              seconds: 2,
-                                                            ),
-                                                      ),
+                                                  onPressed: () async {
+                                                    // Mostrar loading
+                                                    showDialog(
+                                                      context: context,
+                                                      barrierDismissible: false,
+                                                      builder: (context) =>
+                                                          const Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          ),
                                                     );
+
+                                                    try {
+                                                      // Buscar dados do agricultor
+                                                      final apiService =
+                                                          ApiService();
+                                                      final farmer =
+                                                          await apiService
+                                                              .getFarmerByProduct(
+                                                                product['id'],
+                                                              );
+
+                                                      // Fechar loading
+                                                      if (mounted)
+                                                        Navigator.pop(context);
+
+                                                      if (farmer != null) {
+                                                        // Navegar para o chat
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (_) => ChatScreen(
+                                                              currentIndex: widget
+                                                                  .currentIndex,
+                                                              userId: farmer['id']
+                                                                  .toString(),
+                                                              userName:
+                                                                  farmer['name'],
+                                                              userRole:
+                                                                  'Agricultor',
+                                                              productId:
+                                                                  product['id'], // Opcional: passar ID do produto
+                                                              productName:
+                                                                  product['name'], // Opcional: passar nome do produto
+                                                            ),
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        // Mostrar erro
+                                                        if (mounted) {
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                'Não foi possível encontrar o vendedor',
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                            ),
+                                                          );
+                                                        }
+                                                      }
+                                                    } catch (e) {
+                                                      // Fechar loading
+                                                      if (mounted)
+                                                        Navigator.pop(context);
+
+                                                      // Mostrar erro
+                                                      if (mounted) {
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                              'Erro ao buscar vendedor: $e',
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
                                                   },
                                                   icon: const Icon(
                                                     Icons.chat_bubble_outline,
