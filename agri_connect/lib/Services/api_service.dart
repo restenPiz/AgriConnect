@@ -276,6 +276,35 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> getFarmerByProduct(int productId) async {
+    try {
+      print('🌾 Buscando agricultor do produto: $productId');
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/chat/farmer-by-product/$productId');
+
+      print('📡 URL: $url');
+      final response = await http.get(url, headers: headers);
+
+      print('📥 Status: ${response.statusCode}');
+      print('📥 Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          print('✅ Agricultor encontrado: ${jsonData['data']['name']}');
+          return Map<String, dynamic>.from(jsonData['data']);
+        }
+      } else if (response.statusCode == 401) {
+        throw Exception('Não autenticado. Faça login novamente.');
+      }
+
+      throw Exception('Agricultor não encontrado');
+    } catch (e) {
+      print('❌ Erro ao buscar agricultor: $e');
+      return null;
+    }
+  }
+
   // Obter ID do usuário atual
   // Obter ID do usuário atual (compatível com int ou string armazenados)
   Future<String?> getCurrentUserId() async {
