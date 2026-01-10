@@ -58,7 +58,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_currentUserId != null) {
       await _chatService.markMessagesAsRead(_currentUserId!, widget.userId);
 
-      // Carregar mensagens
       _chatService.getMessages(_currentUserId!, widget.userId).listen((
         messages,
       ) {
