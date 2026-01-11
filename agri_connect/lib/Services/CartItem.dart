@@ -101,7 +101,7 @@ class CartManager extends ChangeNotifier {
       // Novo produto
       final imageUrls = product['image_urls'] as List?;
       final imageUrl = imageUrls != null && imageUrls.isNotEmpty
-          ? 'http://10.85.220.12:8000${imageUrls[0]}'
+          ? 'http://10.180.86.12:8000${imageUrls[0]}'
           : null;
 
       _items.add(
