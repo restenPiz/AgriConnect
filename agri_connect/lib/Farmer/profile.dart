@@ -289,7 +289,6 @@ class _profileState extends State<profile> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Logout Button
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
