@@ -110,7 +110,7 @@ class _IndexState extends State<Index> {
           "Productos Proximos",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
+        // leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
         actions: [
           Consumer<CartManager>(
             builder: (context, cart, child) => Stack(
