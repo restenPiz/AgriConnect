@@ -53,7 +53,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     final imageUrls = widget.product['image_urls'] as List?;
     final images =
-        imageUrls?.map((url) => 'http://10.237.254.12:8000$url').toList() ?? [];
+        imageUrls?.map((url) => 'http://10.154.5.12:8000$url').toList() ?? [];
 
     return Scaffold(
       backgroundColor: Colors.white,
