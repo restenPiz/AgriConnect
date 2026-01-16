@@ -1,6 +1,8 @@
 import 'package:agri_connect/Services/CartItem.dart';
+import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetails extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -14,6 +16,38 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   int _selectedImageIndex = 0;
   int _quantity = 1;
+  dynamic user;
+  int? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      userId = prefs.getInt('user_id');
+
+      if (userId == null) {
+        print("Erro: user_id não encontrado no SharedPreferences");
+        return;
+      }
+
+      final result = await ApiService().getProfile(userId!);
+
+      if (result['success'] == true) {
+        setState(() {
+          user = result['data']['user']; // pega apenas o objeto "user"
+        });
+      } else {
+        print("Erro ao buscar perfil: ${result['message']}");
+      }
+    } catch (e) {
+      print("Erro ao carregar usuário: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -423,8 +457,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Agricultor Local',
+                              Text(
+                                '${user['name']}',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
