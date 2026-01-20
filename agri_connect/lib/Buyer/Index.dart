@@ -37,7 +37,7 @@ class _IndexState extends State<Index> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.154.5.12:8000/api/product'),
+        Uri.parse('http://10.164.173.12:8000/api/product'),
         headers: {'Accept': 'application/json'},
       );
 
@@ -250,7 +250,7 @@ class _IndexState extends State<Index> {
                             final imageUrls = product['image_urls'] as List?;
                             final imageUrl =
                                 imageUrls != null && imageUrls.isNotEmpty
-                                ? 'http://10.154.5.12:8000${imageUrls[0]}'
+                                ? 'http://10.164.173.12:8000${imageUrls[0]}'
                                 : null;
 
                             return GestureDetector(
