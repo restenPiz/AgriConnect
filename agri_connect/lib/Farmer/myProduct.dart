@@ -707,19 +707,19 @@ class _myProductState extends State<myProduct> {
                   label: const Text('Editar'),
                   style: TextButton.styleFrom(foregroundColor: Colors.blue),
                 ),
-                TextButton.icon(
-                  onPressed: () => _toggleProductStatus(product['id']),
-                  icon: Icon(
-                    isActive
-                        ? Icons.pause_circle_outline
-                        : Icons.play_circle_outline,
-                    size: 18,
-                  ),
-                  label: Text(isActive ? 'Pausar' : 'Ativar'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: isActive ? Colors.orange : Colors.green,
-                  ),
-                ),
+                // TextButton.icon(
+                //   onPressed: () => _toggleProductStatus(product['id']),
+                //   icon: Icon(
+                //     isActive
+                //         ? Icons.pause_circle_outline
+                //         : Icons.play_circle_outline,
+                //     size: 18,
+                //   ),
+                //   label: Text(isActive ? 'Pausar' : 'Ativar'),
+                //   style: TextButton.styleFrom(
+                //     foregroundColor: isActive ? Colors.orange : Colors.green,
+                //   ),
+                // ),
                 TextButton.icon(
                   onPressed: () => _deleteProduct(product['id']),
                   icon: const Icon(Icons.delete_outline, size: 18),
