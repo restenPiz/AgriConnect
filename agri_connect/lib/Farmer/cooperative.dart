@@ -25,7 +25,7 @@ class _CooperativeState extends State<Cooperative> {
   ];
   int? userId;
 
-  final String apiUrl = 'http://10.164.173.12:8000/api';
+  final String apiUrl = 'http://10.135.136.12:8000/api';
 
   @override
   void initState() {
