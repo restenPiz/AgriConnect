@@ -1,3 +1,4 @@
+import 'package:agri_connect/Auth/login.dart';
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottomBuyer.dart';
@@ -54,7 +55,7 @@ class _ProfileState extends State<Profile> {
     final result = await ApiService().logout();
 
     if (result['success'] == true) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      MaterialPageRoute(builder: (context) => const login());
     }
 
     ScaffoldMessenger.of(
