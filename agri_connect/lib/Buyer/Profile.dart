@@ -53,6 +53,10 @@ class _ProfileState extends State<Profile> {
 
     final result = await ApiService().logout();
 
+    if (result['success'] == true) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Sessão encerrada')));
