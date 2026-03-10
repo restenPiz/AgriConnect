@@ -42,7 +42,7 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 122,
+      height: 105,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
