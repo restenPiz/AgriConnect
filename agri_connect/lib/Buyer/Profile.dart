@@ -47,6 +47,17 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  void logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    final result = await ApiService().logout();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Sessão encerrada')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,6 +207,7 @@ class _ProfileState extends State<Profile> {
                               ),
                               TextButton(
                                 onPressed: () {
+                                  logout();
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

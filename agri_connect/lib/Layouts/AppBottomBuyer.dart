@@ -91,12 +91,6 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
                     "Chat",
                     1,
                   ),
-                  // _buildBottomNavItem(
-                  //   Icons.chat_bubble_outline,
-                  //   Icons.chat_bubble,
-                  //   "Chat",
-                  //   2,
-                  // ),
                   _buildBottomNavItem(
                     Icons.person_outline,
                     Icons.person,
