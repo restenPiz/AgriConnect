@@ -160,9 +160,8 @@ class ApiService {
           )
           .timeout(const Duration(seconds: 10));
 
-      await _clearToken();
-
       if (response.statusCode == 200) {
+        await _clearToken();
         return {'success': true, 'message': 'Logout realizado com sucesso'};
       } else {
         return {'success': false, 'message': 'Erro ao fazer logout'};
