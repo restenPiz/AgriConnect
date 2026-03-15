@@ -40,6 +40,7 @@ class _loginState extends State<login> {
     return null;
   }
 
+  //Handlelogin method responsible to authenticate the user
   Future<void> _handleLogin() async {
     // Clear previous error
     setState(() {
