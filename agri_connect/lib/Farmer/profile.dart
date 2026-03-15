@@ -1,3 +1,4 @@
+import 'package:agri_connect/Auth/welcome.dart';
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
@@ -44,6 +45,66 @@ class _profileState extends State<profile> {
       }
     } catch (e) {
       print("Erro ao carregar usuário: $e");
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      print('=== LOGOUT DEBUG ===');
+      print('Token antes do logout: ${ApiService().isAuthenticated}');
+
+      // Chamar API de logout
+      final result = await ApiService().logout();
+
+      print('Resultado do logout: $result');
+      print('Success: ${result['success']}');
+      print('Message: ${result['message']}');
+
+      if (result['success'] == true) {
+        // Limpar dados locais
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Logout realizado com sucesso!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const welcome()),
+            (route) => false,
+          );
+        }
+      } else {
+        // Mostrar o erro completo
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Erro: ${result['message']}"),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Erro ao fazer logout: $e');
+
+      // Mesmo com erro, limpar dados e voltar
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const welcome()),
+          (route) => false,
+        );
+      }
     }
   }
 
@@ -306,14 +367,7 @@ class _profileState extends State<profile> {
                                 child: const Text('Cancelar'),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Sessão encerrada'),
-                                    ),
-                                  );
-                                },
+                                onPressed: logout,
                                 child: const Text(
                                   'Sair',
                                   style: TextStyle(color: Colors.red),
