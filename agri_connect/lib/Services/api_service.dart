@@ -276,7 +276,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getFarmerByProduct(int productId) async {
     try {
       print('🌾 Buscando agricultor do produto: $productId');
-      final headers = await _getHeaders();
+      final headers = _getHeaders(requiresAuth: true);
       final url = Uri.parse('$baseUrl/chat/farmer-by-product/$productId');
 
       print('📡 URL: $url');
@@ -303,31 +303,59 @@ class ApiService {
   }
 
   // Obter finanças do agricultor
+  // Obter finanças do agricultor
   Future<Map<String, dynamic>?> getFarmerFinances() async {
     try {
       print('💰 Buscando dados financeiros do agricultor...');
-      final headers = await _getHeaders();
+      final headers = _getHeaders(requiresAuth: true);
       final url = Uri.parse('$baseUrl/farmer/finances');
 
       print('📡 URL: $url');
+      print('📋 Headers: $headers');
+
       final response = await http.get(url, headers: headers);
 
-      print('📥 Status: ${response.statusCode}');
-      print('📥 Response: ${response.body}');
+      print('📥 Status Code: ${response.statusCode}');
+      print('📥 Response Body COMPLETO:');
+      print(response.body);
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        if (jsonData['success']) {
-          print('✅ Dados financeiros recebidos');
-          return Map<String, dynamic>.from(jsonData['data']);
+
+        print('🔍 JSON Decodificado:');
+        print('Type: ${jsonData.runtimeType}');
+        print('Keys: ${jsonData.keys}');
+        print('Success: ${jsonData['success']}');
+
+        if (jsonData['success'] == true) {
+          print('✅ Success = true');
+
+          if (jsonData.containsKey('data')) {
+            print('✅ Contém chave "data"');
+            final data = jsonData['data'];
+            print('Data type: ${data.runtimeType}');
+            print('Data keys: ${data.keys}');
+            print('Data completo: $data');
+
+            return Map<String, dynamic>.from(data);
+          } else {
+            print('❌ NÃO contém chave "data"');
+            print('Chaves disponíveis: ${jsonData.keys}');
+          }
+        } else {
+          print('❌ Success = false ou ausente');
         }
       } else if (response.statusCode == 401) {
+        print('❌ Erro 401 - Não autenticado');
         throw Exception('Não autenticado. Faça login novamente.');
+      } else {
+        print('❌ Status code inesperado: ${response.statusCode}');
       }
 
       return null;
-    } catch (e) {
-      print('❌ Erro ao buscar finanças: $e');
+    } catch (e, stackTrace) {
+      print('❌ Exceção ao buscar finanças: $e');
+      print('Stack trace: $stackTrace');
       return null;
     }
   }
@@ -336,7 +364,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getSalesByPeriod(String period) async {
     try {
       print('📊 Buscando vendas por período: $period');
-      final headers = await _getHeaders();
+      final headers = _getHeaders(requiresAuth: true);
       final url = Uri.parse('$baseUrl/farmer/sales-by-period?period=$period');
 
       final response = await http.get(url, headers: headers);

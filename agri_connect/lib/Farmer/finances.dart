@@ -49,6 +49,14 @@ class _FinancesState extends State<Finances> {
 
   String _formatCurrency(dynamic value) {
     if (value == null) return '0.00 MT';
+
+    // Se for string, converter para double
+    if (value is String) {
+      final number = double.tryParse(value) ?? 0;
+      return '${number.toStringAsFixed(2)} MT';
+    }
+
+    // Se for número, usar diretamente
     final number = value is num
         ? value
         : double.tryParse(value.toString()) ?? 0;
@@ -242,10 +250,14 @@ class _FinancesState extends State<Finances> {
       return const SizedBox();
     }
 
-    final maxSales = salesData.fold<double>(
-      0,
-      (max, day) => day['sales'] > max ? day['sales'].toDouble() : max,
-    );
+    // Converter sales de string para double e encontrar o máximo
+    final maxSales = salesData.fold<double>(0, (max, day) {
+      final sales = day['sales'];
+      final salesValue = sales is String
+          ? double.tryParse(sales) ?? 0.0
+          : (sales as num?)?.toDouble() ?? 0.0;
+      return salesValue > max ? salesValue : max;
+    });
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -274,7 +286,12 @@ class _FinancesState extends State<Finances> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: salesData.map((day) {
-                final sales = (day['sales'] as num).toDouble();
+                // Converter sales de string para double
+                final salesRaw = day['sales'];
+                final sales = salesRaw is String
+                    ? double.tryParse(salesRaw) ?? 0.0
+                    : (salesRaw as num?)?.toDouble() ?? 0.0;
+
                 final height = maxSales > 0 ? (sales / maxSales) * 120 : 0.0;
 
                 return Column(
