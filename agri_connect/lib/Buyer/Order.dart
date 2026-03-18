@@ -14,15 +14,9 @@ class Order extends StatefulWidget {
 
 class _OrderState extends State<Order> {
   bool _isLoading = false;
+  final PaymentService _paymentService = PaymentService();
 
-  @override
-  void initState() {
-    super.initState();
-    // Carregar carrinho ao iniciar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CartManager>().loadCart();
-    });
-  }
+  // ... resto do código
 
   Future<void> _placeOrder() async {
     final cartManager = context.read<CartManager>();
@@ -37,48 +31,70 @@ class _OrderState extends State<Order> {
       return;
     }
 
+    // Mostrar modal de pagamento M-Pesa
+    final phoneNumber = await showMpesaPaymentModal(
+      context,
+      cartManager.totalAmount,
+    );
+
+    // Se o usuário cancelou, retornar
+    if (phoneNumber == null) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Aqui você faria a chamada para sua API
-      final orderData = {
-        'items': cartManager.items
-            .map(
-              (item) => {
-                'product_id': item.productId,
-                'quantity': item.quantity,
-                'price': item.price,
-              },
-            )
-            .toList(),
-        'total_amount': cartManager.totalAmount,
-      };
+      // Preparar dados dos itens
+      final orderItems = cartManager.items
+          .map(
+            (item) => {
+              'product_id': item.productId,
+              'quantity': item.quantity,
+              'price': item.price,
+              'unit': item.unit,
+            },
+          )
+          .toList();
 
-      // Simular envio de pedido
-      await Future.delayed(const Duration(seconds: 2));
+      print('📦 Itens do pedido: $orderItems');
 
-      // Limpar carrinho após sucesso
-      cartManager.clear();
+      // Iniciar pagamento M-Pesa
+      final paymentResult = await _paymentService.initiateMpesaPayment(
+        phoneNumber: phoneNumber,
+        amount: cartManager.totalAmount,
+        items: orderItems,
+      );
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pedido realizado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (paymentResult['success'] == true) {
+        // Mostrar diálogo de sucesso
+        await _showPaymentSuccessDialog(
+          paymentResult['message'] ??
+              'Pagamento iniciado! Verifique seu telefone.',
+        );
+
+        // Limpar carrinho
+        cartManager.clear();
+
+        // Voltar para tela anterior
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } else {
+        // Mostrar erro
+        _showErrorDialog(
+          paymentResult['message'] ?? 'Erro ao processar pagamento',
+        );
+      }
     } catch (e) {
+      print('❌ Erro: $e');
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao realizar pedido: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showErrorDialog('Erro ao processar pagamento: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -86,6 +102,121 @@ class _OrderState extends State<Order> {
         });
       }
     }
+  }
+
+  Future<void> _showPaymentSuccessDialog(String message) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle,
+                size: 64,
+                color: Colors.green[700],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Pagamento Iniciado!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red[700],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Erro no Pagamento',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Tentar Novamente',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
