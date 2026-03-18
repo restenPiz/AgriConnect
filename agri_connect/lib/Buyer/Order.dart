@@ -1,3 +1,5 @@
+import 'package:agri_connect/Buyer/MpesaPaymentModal.dart';
+import 'package:agri_connect/Buyer/PaymentService.dart';
 import 'package:agri_connect/Services/CartItem.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,9 +16,15 @@ class Order extends StatefulWidget {
 
 class _OrderState extends State<Order> {
   bool _isLoading = false;
-  final PaymentService _paymentService = PaymentService();
 
-  // ... resto do código
+  @override
+  void initState() {
+    super.initState();
+    // Carregar carrinho ao iniciar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartManager>().loadCart();
+    });
+  }
 
   Future<void> _placeOrder() async {
     final cartManager = context.read<CartManager>();
@@ -31,38 +39,33 @@ class _OrderState extends State<Order> {
       return;
     }
 
-    // Mostrar modal de pagamento M-Pesa
+    // 1. Mostrar modal para obter número
     final phoneNumber = await showMpesaPaymentModal(
       context,
       cartManager.totalAmount,
     );
 
-    // Se o usuário cancelou, retornar
-    if (phoneNumber == null) {
-      return;
-    }
+    // Se cancelou, retornar
+    if (phoneNumber == null) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    // 2. Mostrar loading
+    setState(() => _isLoading = true);
 
     try {
-      // Preparar dados dos itens
+      // 3. Preparar dados dos itens
       final orderItems = cartManager.items
           .map(
             (item) => {
               'product_id': item.productId,
               'quantity': item.quantity,
               'price': item.price,
-              'unit': item.unit,
             },
           )
           .toList();
 
-      print('📦 Itens do pedido: $orderItems');
-
-      // Iniciar pagamento M-Pesa
-      final paymentResult = await _paymentService.initiateMpesaPayment(
+      // 4. Enviar para backend Laravel (ele faz tudo)
+      final paymentService = PaymentService();
+      final result = await paymentService.initiateMpesaPayment(
         phoneNumber: phoneNumber,
         amount: cartManager.totalAmount,
         items: orderItems,
@@ -70,153 +73,52 @@ class _OrderState extends State<Order> {
 
       if (!mounted) return;
 
-      if (paymentResult['success'] == true) {
-        // Mostrar diálogo de sucesso
-        await _showPaymentSuccessDialog(
-          paymentResult['message'] ??
-              'Pagamento iniciado! Verifique seu telefone.',
+      if (result['success'] == true) {
+        // 5. Sucesso - Mostrar confirmação
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    result['message'] ??
+                        'Pagamento iniciado! Verifique seu M-Pesa.',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
         );
 
-        // Limpar carrinho
+        // 6. Limpar carrinho
         cartManager.clear();
 
-        // Voltar para tela anterior
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        // 7. Voltar
+        Navigator.pop(context);
       } else {
-        // Mostrar erro
-        _showErrorDialog(
-          paymentResult['message'] ?? 'Erro ao processar pagamento',
+        // Erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Erro ao processar pagamento'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
-      print('❌ Erro: $e');
       if (!mounted) return;
 
-      _showErrorDialog('Erro ao processar pagamento: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: $e'), backgroundColor: Colors.red),
+      );
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
-  }
-
-  Future<void> _showPaymentSuccessDialog(String message) async {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.check_circle,
-                size: 64,
-                color: Colors.green[700],
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Pagamento Iniciado!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'OK',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red[700],
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Erro no Pagamento',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[700],
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Tentar Novamente',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
