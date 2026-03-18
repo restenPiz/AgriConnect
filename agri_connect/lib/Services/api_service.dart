@@ -302,6 +302,61 @@ class ApiService {
     }
   }
 
+  // Obter finanças do agricultor
+  Future<Map<String, dynamic>?> getFarmerFinances() async {
+    try {
+      print('💰 Buscando dados financeiros do agricultor...');
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/farmer/finances');
+
+      print('📡 URL: $url');
+      final response = await http.get(url, headers: headers);
+
+      print('📥 Status: ${response.statusCode}');
+      print('📥 Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          print('✅ Dados financeiros recebidos');
+          return Map<String, dynamic>.from(jsonData['data']);
+        }
+      } else if (response.statusCode == 401) {
+        throw Exception('Não autenticado. Faça login novamente.');
+      }
+
+      return null;
+    } catch (e) {
+      print('❌ Erro ao buscar finanças: $e');
+      return null;
+    }
+  }
+
+  // Obter vendas por período
+  Future<Map<String, dynamic>?> getSalesByPeriod(String period) async {
+    try {
+      print('📊 Buscando vendas por período: $period');
+      final headers = await _getHeaders();
+      final url = Uri.parse('$baseUrl/farmer/sales-by-period?period=$period');
+
+      final response = await http.get(url, headers: headers);
+
+      print('📥 Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success']) {
+          return Map<String, dynamic>.from(jsonData['data']);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print('❌ Erro ao buscar vendas por período: $e');
+      return null;
+    }
+  }
+
   // Obter ID do usuário atual
   // Obter ID do usuário atual (compatível com int ou string armazenados)
   Future<String?> getCurrentUserId() async {

@@ -1,5 +1,6 @@
 import 'package:agri_connect/Farmer/addProduct.dart';
 import 'package:agri_connect/Farmer/cooperative.dart';
+import 'package:agri_connect/Farmer/finances.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:agri_connect/Services/api_service.dart';
@@ -166,10 +167,9 @@ class _indexState extends State<index> with TickerProviderStateMixin {
                   Icons.attach_money,
                   "Finanças",
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Finanças em desenvolvimento'),
-                      ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Finances()),
                     );
                   },
                 ),
