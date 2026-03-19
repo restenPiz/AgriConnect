@@ -281,7 +281,7 @@ class _FinancesState extends State<Finances> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 150,
+            height: 170,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -316,7 +316,7 @@ class _FinancesState extends State<Finances> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 5),
                     Text(
                       day['date'],
                       style: TextStyle(fontSize: 10, color: Colors.grey[600]),
