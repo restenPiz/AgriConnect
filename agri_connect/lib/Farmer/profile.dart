@@ -279,55 +279,6 @@ class _profileState extends State<profile> {
               child: Column(
                 children: [
                   _buildMenuCard(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'Meus Produtos',
-                    subtitle: '12 produtos ativos',
-                    color: Colors.orange,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const myProduct()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.wallet,
-                    title: 'Carteira',
-                    subtitle: 'Saldo: 13 750 MT',
-                    color: Colors.green,
-                    onTap: () {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Carteira')));
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.shopping_bag_outlined,
-                    title: 'Pedidos',
-                    subtitle: '8 pedidos pendentes',
-                    color: Colors.blue,
-                    onTap: () {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Pedidos')));
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
-                    icon: Icons.bar_chart,
-                    title: 'Estatísticas',
-                    subtitle: 'Ver desempenho',
-                    color: Colors.purple,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Estatísticas')),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuCard(
                     icon: Icons.settings,
                     title: 'Configurações',
                     subtitle: 'Preferências e privacidade',
