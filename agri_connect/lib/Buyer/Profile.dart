@@ -185,7 +185,7 @@ class _ProfileState extends State<Profile> {
 
                   // Name
                   Text(
-                    '${user['name']}',
+                    user != null ? '${user['name']}' : 'Carregando...',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -196,7 +196,9 @@ class _ProfileState extends State<Profile> {
 
                   // Location
                   Text(
-                    'Comprador • ${user['address'] ?? 'Endereço não definido'}',
+                    user != null
+                        ? 'Comprador • ${user['address'] ?? 'Endereço não definido'}'
+                        : 'Carregando...',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.9),
