@@ -1,48 +1,35 @@
-import 'package:agri_connect/Buyer/Index.dart';
-import 'package:agri_connect/Buyer/Order.dart';
 import 'package:agri_connect/Farmer/MainChat.dart';
-import 'package:agri_connect/Farmer/chat.dart';
 import 'package:agri_connect/Farmer/index.dart';
 import 'package:agri_connect/Farmer/myProduct.dart';
 import 'package:agri_connect/Farmer/profile.dart';
 import 'package:flutter/material.dart';
 
 class Appbottom extends StatefulWidget {
-  final int currentIndex;
-
-  const Appbottom({super.key, this.currentIndex = 0});
+  const Appbottom({super.key});
 
   @override
   State<Appbottom> createState() => _AppbottomState();
 }
 
 class _AppbottomState extends State<Appbottom> {
-  late String userType = 'buyer';
+  int _currentIndex = 0;
 
-  late List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState(); // Initialize in initState
-    _screens = [
-      const index(currentIndex: 0),
-      const myProduct(),
-      const MainChat(),
-      const profile(),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    if (index == widget.currentIndex) return; // evita recarregar mesma página
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => _screens[index]),
-    );
-  }
+  final List<Widget> _screens = [
+    const index(),
+    const myProduct(),
+    const MainChat(),
+    const profile(),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildBottomNav() {
     return Container(
       height: 122,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -59,11 +46,6 @@ class _AppbottomState extends State<Appbottom> {
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
         ],
       ),
       child: ClipRRect(
@@ -71,34 +53,27 @@ class _AppbottomState extends State<Appbottom> {
         child: BottomAppBar(
           color: Colors.transparent,
           elevation: 0,
-          notchMargin: 8,
-          shape: const CircularNotchedRectangle(),
           child: SizedBox(
             height: 90,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  _buildBottomNavItem(
-                    Icons.home_outlined,
-                    Icons.home,
-                    "Inicio",
-                    0,
-                  ),
-                  _buildBottomNavItem(
+                children: [
+                  _buildNavItem(Icons.home_outlined, Icons.home, "Inicio", 0),
+                  _buildNavItem(
                     Icons.inventory_2_outlined,
                     Icons.inventory_2,
                     "Productos",
                     1,
                   ),
-                  _buildBottomNavItem(
+                  _buildNavItem(
                     Icons.chat_bubble_outline,
                     Icons.chat_bubble,
                     "Chat",
                     2,
                   ),
-                  _buildBottomNavItem(
+                  _buildNavItem(
                     Icons.person_outline,
                     Icons.person,
                     "Perfil",
@@ -113,15 +88,15 @@ class _AppbottomState extends State<Appbottom> {
     );
   }
 
-  Widget _buildBottomNavItem(
+  Widget _buildNavItem(
     IconData icon,
     IconData activeIcon,
     String label,
     int index,
   ) {
-    bool isSelected = widget.currentIndex == index;
+    final isSelected = _currentIndex == index;
     return InkWell(
-      onTap: () => _onItemTapped(index),
+      onTap: () => setState(() => _currentIndex = index),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,

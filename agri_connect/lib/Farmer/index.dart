@@ -230,7 +230,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
+      // bottomNavigationBar: Appbottom(),
     );
   }
 

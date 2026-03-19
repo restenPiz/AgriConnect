@@ -1,5 +1,6 @@
 import 'package:agri_connect/Buyer/index.dart';
 import 'package:agri_connect/Farmer/index.dart';
+import 'package:agri_connect/Layouts/AppBottom.dart';
 import 'package:agri_connect/Services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -98,7 +99,7 @@ class _loginState extends State<login> {
         if (userType == 'farmer') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const index()),
+            MaterialPageRoute(builder: (_) => const Appbottom()),
           );
         } else {
           Navigator.pushReplacement(

@@ -395,9 +395,6 @@ class _profileState extends State<profile> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-      /// Bottom Navigation Bar
-      bottomNavigationBar: Appbottom(currentIndex: widget.currentIndex),
     );
   }
 
