@@ -236,7 +236,7 @@ class _indexState extends State<index> with TickerProviderStateMixin {
 
   Widget _buildStatsCards() {
     return SizedBox(
-      height: 120,
+      height: 130,
       child: Row(
         children: [
           Expanded(
@@ -454,23 +454,23 @@ class _indexState extends State<index> with TickerProviderStateMixin {
                 },
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildOptionCard(
-                "Relatórios",
-                "Análises e insights",
-                Icons.analytics_outlined,
-                LinearGradient(colors: [Colors.blue[400]!, Colors.blue[600]!]),
-                () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Em breve!'),
-                      backgroundColor: Colors.blue,
-                    ),
-                  );
-                },
-              ),
-            ),
+            // const SizedBox(width: 12),
+            // Expanded(
+            //   child: _buildOptionCard(
+            //     "Relatórios",
+            //     "Análises e insights",
+            //     Icons.analytics_outlined,
+            //     LinearGradient(colors: [Colors.blue[400]!, Colors.blue[600]!]),
+            //     () {
+            //       ScaffoldMessenger.of(context).showSnackBar(
+            //         const SnackBar(
+            //           content: Text('Em breve!'),
+            //           backgroundColor: Colors.blue,
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
           ],
         ),
       ],
