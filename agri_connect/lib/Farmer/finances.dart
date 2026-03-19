@@ -299,7 +299,7 @@ class _FinancesState extends State<Finances> {
                   children: [
                     if (sales > 0)
                       Text(
-                        '${sales.toInt()}',
+                        '${sales.toInt()} MT',
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
