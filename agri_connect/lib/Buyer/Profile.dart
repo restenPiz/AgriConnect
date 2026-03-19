@@ -290,8 +290,6 @@ class _ProfileState extends State<Profile> {
           ],
         ),
       ),
-
-      bottomNavigationBar: AppBottomBuyer(currentIndex: widget.currentIndex),
     );
   }
 

@@ -625,7 +625,6 @@ class _IndexState extends State<Index> {
                 ],
               ),
             ),
-      bottomNavigationBar: AppBottomBuyer(currentIndex: widget.currentIndex),
     );
   }
 }

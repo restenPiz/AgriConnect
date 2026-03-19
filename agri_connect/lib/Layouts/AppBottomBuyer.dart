@@ -1,48 +1,35 @@
 import 'package:agri_connect/Buyer/Index.dart';
 import 'package:agri_connect/Buyer/MainChat.dart';
-import 'package:agri_connect/Buyer/Order.dart';
-import 'package:agri_connect/Farmer/index.dart';
-import 'package:agri_connect/Farmer/myProduct.dart';
-import 'package:flutter/material.dart';
 import 'package:agri_connect/Buyer/Profile.dart';
+import 'package:flutter/material.dart';
 
-class AppBottomBuyer extends StatefulWidget {
-  final int currentIndex;
-
-  const AppBottomBuyer({super.key, this.currentIndex = 0});
+class Appbottombuyer extends StatefulWidget {
+  const Appbottombuyer({super.key});
 
   @override
-  State<AppBottomBuyer> createState() => _AppBottomBuyerState();
+  State<Appbottombuyer> createState() => _AppbottombuyerState();
 }
 
-class _AppBottomBuyerState extends State<AppBottomBuyer> {
-  late String userType = 'buyer';
+class _AppbottombuyerState extends State<Appbottombuyer> {
+  int _currentIndex = 0;
 
-  late List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      const Index(currentIndex: 0),
-      const MainChat(),
-      const Profile(),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    if (index == widget.currentIndex) return; // evita recarregar mesma página
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => _screens[index]),
-    );
-  }
+  final List<Widget> _screens = [
+    const Index(),
+    const MainChat(),
+    const Profile(),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildBottomNav() {
     return Container(
-      height: 105,
+      height: 122,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -57,11 +44,6 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
         ],
       ),
       child: ClipRRect(
@@ -69,29 +51,21 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
         child: BottomAppBar(
           color: Colors.transparent,
           elevation: 0,
-          notchMargin: 8,
-          shape: const CircularNotchedRectangle(),
           child: SizedBox(
             height: 90,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  //Test comment
-                  _buildBottomNavItem(
-                    Icons.home_outlined,
-                    Icons.home,
-                    "Productos",
-                    0,
-                  ),
-                  _buildBottomNavItem(
+                children: [
+                  _buildNavItem(Icons.home_outlined, Icons.home, "Inicio", 0),
+                  _buildNavItem(
                     Icons.chat_bubble_outline,
                     Icons.chat_bubble,
                     "Chat",
                     1,
                   ),
-                  _buildBottomNavItem(
+                  _buildNavItem(
                     Icons.person_outline,
                     Icons.person,
                     "Perfil",
@@ -106,15 +80,15 @@ class _AppBottomBuyerState extends State<AppBottomBuyer> {
     );
   }
 
-  Widget _buildBottomNavItem(
+  Widget _buildNavItem(
     IconData icon,
     IconData activeIcon,
     String label,
     int index,
   ) {
-    bool isSelected = widget.currentIndex == index;
+    final isSelected = _currentIndex == index;
     return InkWell(
-      onTap: () => _onItemTapped(index),
+      onTap: () => setState(() => _currentIndex = index),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
