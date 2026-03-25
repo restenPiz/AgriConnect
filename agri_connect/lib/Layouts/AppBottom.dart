@@ -14,6 +14,7 @@ class Appbottom extends StatefulWidget {
 class _AppbottomState extends State<Appbottom> {
   int _currentIndex = 0;
 
+  //Start with screens
   final List<Widget> _screens = [
     const index(),
     const myProduct(),
