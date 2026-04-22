@@ -6,7 +6,7 @@ class PaymentService {
   // ⚠️ IMPORTANTE: Altere para o IP da sua máquina
   // Para Android Emulator: use 10.0.2.2
   // Para dispositivo real: use o IP local da sua máquina (ex: 192.168.1.100)
-  static const String baseUrl = 'http://172.28.223.12:8000/api';
+  static const String baseUrl = 'http://172.17.39.12:8000/api';
 
   // Obter token de autenticação
   Future<String?> _getAuthToken() async {
