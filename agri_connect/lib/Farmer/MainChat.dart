@@ -51,6 +51,7 @@ class _MainChatState extends State<MainChat> with WidgetsBindingObserver {
     }
   }
 
+  //Method to load all the current user on the application
   Future<void> _loadCurrentUser() async {
     try {
       _currentUserId = await _apiService.getCurrentUserId();
